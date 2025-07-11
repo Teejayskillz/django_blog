@@ -122,6 +122,8 @@ class HomepageSection(models.Model):
 class DownloadQuality(models.Model):
     QUALITY_CHOICES = [
         ('360p', 'DOWNLOAD MOVIE [360p]'),
+        ('mp3', 'DOWNLOAD MUSIC/MP3'),
+        ('ZIP', 'DOWNLOAD FULL ALBUM [ZIP]'),
         ('480p', 'DOWNLOAD MOVIE [480p]'), 
         ('720p', 'DOWNLOAD MOVIE [720p (HD)]'),
         ('1080p', 'DOWNLOAD MOVIE 1080p (FHD)]'),
