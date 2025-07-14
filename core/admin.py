@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 import os
 from django_ckeditor_5.widgets import CKEditor5Widget
-from .models import Post, Category, Comment, HomepageSection, DownloadQuality, Subtitle
+from .models import Post, Category, Comment, HomepageSection, DownloadQuality, Subtitle, Page
 
 # WordPress Import Form and Functionality
 class ImportForm(forms.Form):
@@ -212,3 +212,15 @@ class HomepageSectionAdmin(admin.ModelAdmin):
     filter_horizontal = ('categories',)
     list_display = ('title', 'enabled', 'display_order')
     list_editable = ('enabled', 'display_order')
+    
+@admin.register(Page)
+class PageAdmin(admin.ModelAdmin):
+    list_display = ('title', 'slug', 'is_published')
+    prepopulated_fields = {'slug': ('title',)}
+    search_fields = ('title', 'content')
+    list_filter = ('is_published',)
+    fieldsets = (
+        (None, {
+            'fields': ('title', 'slug', 'content', 'is_published')
+        }),
+    )

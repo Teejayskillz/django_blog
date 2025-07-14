@@ -1,6 +1,6 @@
 from django.urls import path
 from django.views.generic.base import RedirectView
-from .views import home, CategoryView, PostDetailView, search, download_quality, download_subtitle, TagDetailView
+from .views import home, CategoryView, PostDetailView, search, download_quality, download_subtitle, TagDetailView, PageView
 
 urlpatterns = [
     path('', home, name='home'),
@@ -18,6 +18,7 @@ urlpatterns = [
         permanent=True,
         query_string=True
     )),
+    path('<slug:slug>/', PageView, name='page_view'),
 
     # WordPress-style URLs (catch-all pattern - must come LAST)
     path('<str:category>/<slug:slug>/', PostDetailView.as_view(), name='post_detail'),

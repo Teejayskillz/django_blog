@@ -195,3 +195,26 @@ class MyCustomTag(TaggitTag):
             if not self.slug or self.slug == '-':
                 self.slug = f"tag-{self.id}" # Fallback to a unique slug
         super().save(*args, **kwargs)    
+        
+class Page(models.Model):
+    title = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=200, unique=True)
+    content = CKEditor5Field('Content', config_name='default')
+    published_date = models.DateTimeField(auto_now_add=True)
+    is_published = models.BooleanField(default=True)
+
+    def get_absolute_url(self):
+        return reverse('page_detail', kwargs={'slug': self.slug})
+
+    class Meta:
+        ordering = ['-published_date']
+        verbose_name = "Page"
+        verbose_name_plural = "Pages"
+
+    def __str__(self):
+        return self.title
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super().save(*args, **kwargs)

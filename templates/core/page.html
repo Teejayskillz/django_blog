@@ -1,0 +1,120 @@
+{% extends 'core/base.html' %} {# Extends your main base template #}
+{% load static %} {# If you need to use static files like CSS/JS/images specific to this page #}
+
+{% block title %}
+    {{ page.title|default:"Page Title" }} {# Assumes you pass a 'page' object with a 'title' attribute #}
+{% end block title %}
+
+{% block content %}
+<div class="container my-5"> {# Using Bootstrap container for responsiveness and spacing #}
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <h1 class="text-center mb-4">{{ page.title|default:"Welcome to Our Page" }}</h1>
+
+            <div class="page-content">
+                {# This is where the main content of your page will go #}
+                {# It's common to store this content in a database field (e.g., RichTextUploadingField) #}
+                {# and then render it using the 'safe' filter if it contains HTML. #}
+                {% if page.content %}
+                    {{ page.content|safe }}
+                {% else %}
+                    <p class="lead text-muted text-center">
+                        This is a placeholder page. The content for this page is yet to be added.
+                        Please check back later!
+                    </p>
+                    <p>You can define the actual content for this page in your Django admin or view.</p>
+                {% endif %}
+            </div>
+
+            {# You can add more sections here if needed, e.g., a contact form or additional info #}
+
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+{# Add any page-specific JavaScript here if necessary #}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Page loaded successfully!');
+        // Example: Add some dynamic behavior specific to this page
+    });
+</script>
+{% endblock extra_js %}
+
+{% block extra_css %}
+{# Add any page-specific CSS here if necessary #}
+<style>
+    /* Basic styling for the page content, feel free to customize */
+    .page-content {
+        background-color: var(--lighter-bg); /* Use your theme's background */
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05); /* Subtle shadow */
+        line-height: 1.8;
+        color: var(--text);
+    }
+
+    .page-content h2, .page-content h3 {
+        color: var(--primary); /* Style headings within content */
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .page-content p {
+        margin-bottom: 1rem;
+    }
+
+    .page-content ul, .page-content ol {
+        margin-bottom: 1rem;
+        padding-left: 1.5rem;
+    }
+
+    .page-content li {
+        margin-bottom: 0.5rem;
+    }
+
+    /* Responsive images within the content */
+    .page-content img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 1.5rem auto; /* Center images and add vertical space */
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    /* Responsive iframes (e.g., for embedded videos) */
+    .page-content .responsive-iframe-container {
+        position: relative;
+        padding-bottom: 56.25%; /* 16:9 aspect ratio */
+        height: 0;
+        overflow: hidden;
+        max-width: 100%;
+        background: #000; /* Fallback background for video area */
+        margin: 1.5rem 0;
+        border-radius: 8px;
+    }
+
+    .page-content .responsive-iframe-container iframe,
+    .page-content .responsive-iframe-container object,
+    .page-content .responsive-iframe-container embed {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    /* Adjustments for smaller screens */
+    @media (max-width: 768px) {
+        .page-content {
+            padding: 1.5rem;
+        }
+        .page-content h1 {
+            font-size: 2rem;
+        }
+    }
+</style>
+{% endblock extra_css %}

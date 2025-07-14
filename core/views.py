@@ -288,4 +288,7 @@ class TagDetailView(ListView):
 def robots_txt(request):
     return render(request, 'robots.txt', content_type='text/plain')
 
-    
+def PageView(request, slug):
+    # This view handles the legacy URL pattern for pages
+    # It can be used to render static pages or other content
+    return render(request, 'core/page.html', {'slug': slug})   
