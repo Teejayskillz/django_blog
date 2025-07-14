@@ -1004,44 +1004,89 @@
         .post-content {
             padding: 1.5rem;
         }
+
+        /* --- NEW CSS for fitting content --- */
+        .post-content img {
+            max-width: 100%; /* Ensure images don't overflow */
+            height: auto; /* Maintain aspect ratio */
+            display: block; /* Remove extra space below images */
+            margin-left: auto; /* Center images if smaller than container */
+            margin-right: auto;
+            border-radius: 8px; /* Consistent styling */
+        }
+
+        /* Responsive embeds (like YouTube iframes) */
+        .post-content iframe,
+        .post-content video {
+            max-width: 100%; /* Limit width to parent container */
+            height: auto; /* Maintain aspect ratio */
+            display: block; /* Important for preventing extra space */
+            margin-left: auto; /* Center iframes if smaller than container */
+            margin-right: auto;
+        }
+
+        /* A common pattern for truly responsive iframes (like YouTube)
+           This creates an aspect ratio box to prevent collapsing iframes.
+           You might need to wrap your iframe in a div with this class
+           in your content editor if it's not already. */
+        .post-content .video-responsive {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio (height / width = 9 / 16 = 0.5625) */
+            height: 0;
+            overflow: hidden;
+            margin-bottom: 1rem; /* Add some space below the video */
+            border-radius: 8px;
+        }
+
+        .post-content .video-responsive iframe,
+        .post-content .video-responsive object,
+        .post-content .video-responsive embed {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        /* --- END NEW CSS --- */
     }
 
     @media (max-width: 480px) {
         .section-title {
             font-size: 1.3rem;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 0.5rem;
         }
-
+        .section-title i {
+            font-size: 1.7rem;
+        }
+        .section-heading {
+            font-size: 1rem;
+        }
         .quality-name {
             font-size: 1rem;
         }
-
-        .premium-badge {
-            font-size: 0.7rem;
-            padding: 0.2rem 0.5rem;
+        .premium-badge, .auto-badge {
+            font-size: 0.65rem;
+            padding: 0.15rem 0.6rem;
         }
-
-        .post-header .display-4 {
-            font-size: 2rem;
+        .disclaimer {
+            font-size: 0.85rem;
+            padding: 0.8rem;
         }
-    }
-
-    .uppercase-text {
-      text-transform: uppercase;
-    }
-
-    /* Animation keyframes - ensure consistency with base.html */
-    @keyframes slideUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px); /* Reduced translate for subtler effect */
+        .comments-header h4 {
+            font-size: 1.5rem;
         }
-        to {
-            opacity: 1;
-            transform: translateY(0);
+        .comment-author {
+            font-size: 1rem;
+        }
+        .comment-text {
+            font-size: 0.95rem;
+        }
+        .form-control {
+            padding: 0.8rem 1rem;
+            font-size: 0.95rem;
+        }
+        .submit-btn {
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
         }
     }
 </style>
-{% endblock %}
