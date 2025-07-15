@@ -297,6 +297,16 @@
             });
         }
     });
+
+    document.addEventListener('DOMContentLoaded', function() {
+    const postContentDiv = document.querySelector('.post-content');
+    if (postContentDiv) {
+        const links = postContentDiv.querySelectorAll('a[target="_blank"]');
+        links.forEach(link => {
+            link.removeAttribute('target');
+        });
+    }
+});
 </script>
 
 <style>
