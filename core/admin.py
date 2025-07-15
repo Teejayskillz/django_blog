@@ -227,54 +227,46 @@ class PageAdmin(admin.ModelAdmin):
     
 @admin.register(Media)
 class MediaAdmin(admin.ModelAdmin):
-    list_display = ('title', 'uploaded_at', 'file_link_display', 'file_preview') # Add custom methods to list_display
-    search_fields = ('title', 'file') # Allow searching by title and file name
-    list_filter = ('uploaded_at',) # Allow filtering by upload date
-    readonly_fields = ('uploaded_at', 'file_link_field', 'file_preview_detail') # Make uploaded_at read-only, show file link and preview on detail page
+    list_display = ('title', 'uploaded_at', 'thumbnail_preview', 'file_link_display') # Changed to thumbnail_preview
+    search_fields = ('title', 'file')
+    list_filter = ('uploaded_at',)
+    readonly_fields = ('uploaded_at', 'thumbnail_preview_detail', 'file_link_field') # Add thumbnail_preview_detail to readonly_fields
+
+    def thumbnail_preview(self, obj):
+        """Displays the generated thumbnail in the list view."""
+        if obj.thumbnail:
+            return format_html('<img src="{}" style="max-height: 60px; max-width: 60px; object-fit: contain; border: 1px solid #eee;" />', obj.thumbnail.url)
+        # You could add a generic file icon here if no thumbnail is generated
+        return format_html('<i class="fas fa-file fa-2x text-muted" style="line-height: 60px;"></i>')
+    thumbnail_preview.short_description = 'Thumbnail'
+
+
+    def thumbnail_preview_detail(self, obj):
+        """Displays the generated thumbnail on the detail page."""
+        if obj.thumbnail:
+            return format_html('<img src="{}" class="img-fluid border" style="max-width: 200px; height: auto;" />', obj.thumbnail.url)
+        return '<p class="text-muted">No thumbnail generated or file is not an image.</p>'
+    thumbnail_preview_detail.short_description = 'Thumbnail Preview'
 
 
     def file_link_display(self, obj):
-        """Displays a direct link to the file in the list view."""
+        """Displays a direct link to the original file in the list view."""
         if obj.file:
             return format_html('<a href="{}" target="_blank">{}</a>', obj.file.url, obj.file.name)
         return "No file"
-    file_link_display.short_description = 'File Link' # Column header in admin
-
-    def file_preview(self, obj):
-        """Displays a small preview for images in the list view."""
-        if obj.file and obj.file.name.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
-            return format_html('<img src="{}" style="max-height: 50px; max-width: 50px;" />', obj.file.url)
-        return "-"
-    file_preview.short_description = 'Preview'
-
+    file_link_display.short_description = 'Original File'
 
     def file_link_field(self, obj):
-        """Displays the direct link to the file on the detail page."""
+        """Displays the direct link to the original file on the detail page."""
         if obj.file:
-            return format_html('<p><strong>Direct File URL:</strong> <a href="{}" target="_blank">{}</a></p>', obj.file.url, obj.file.url)
-        return "No file uploaded."
-    file_link_field.short_description = 'File URL'
+            return format_html('<p><strong>Original File URL:</strong> <a href="{}" target="_blank">{}</a></p>', obj.file.url, obj.file.url)
+        return "No original file."
+    file_link_field.short_description = 'Original File URL'
 
-    def file_preview_detail(self, obj):
-        """Displays a larger preview for various media types on the detail page."""
-        if obj.file:
-            file_url = obj.file.url
-            file_name_lower = obj.file.name.lower()
-
-            if file_name_lower.endswith(('.png', '.jpg', '.jpeg', '.gif')):
-                return format_html('<img src="{}" class="img-fluid border" style="max-width: 300px; height: auto;" />', file_url)
-            elif file_name_lower.endswith(('.mp4', '.webm', '.ogg')):
-                return format_html('<video controls src="{}" style="max-width: 300px; height: auto;"></video>', file_url)
-            elif file_name_lower.endswith(('.mp3', '.wav', '.ogg')):
-                return format_html('<audio controls src="{}"></audio>', file_url)
-            else:
-                return format_html('<p>No visual preview available. <a href="{}" target="_blank">Download File</a></p>', file_url)
-        return "No file uploaded for preview."
-    file_preview_detail.short_description = 'File Preview'
 
     # Ensure these custom fields appear in the admin change form
     fieldsets = (
         (None, {
-            'fields': ('title', 'file', 'uploaded_at', 'file_link_field', 'file_preview_detail')
+            'fields': ('title', 'file', 'thumbnail_preview_detail', 'file_link_field', 'uploaded_at')
         }),
-    )    
+    )

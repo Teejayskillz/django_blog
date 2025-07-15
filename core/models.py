@@ -221,18 +221,74 @@ class Page(models.Model):
 
 class Media(models.Model):
     title = models.CharField(max_length=200)
-    file = models.FileField(upload_to='media/')
+    file = models.FileField(upload_to='media/') # Original file
+    thumbnail = models.ImageField(upload_to='thumbnails/', blank=True, null=True) # New: Field for the thumbnail
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.title
 
-    # This method is useful for the admin to have a direct link to the file,
-    # even if it's not a public front-end URL.
     def get_absolute_url(self):
-        # For backend-only, this can simply return the file's URL
-        # or a link to its detail page within the admin.
-        # If you want a direct link to the file from the admin list:
+        # This can still return the original file URL or a specific admin URL
         if self.file:
             return self.file.url
-        return '#' # Or None, if no file
+        return '#'
+
+    def save(self, *args, **kwargs):
+        # Save the original file firstx to get its path
+        super().save(*args, **kwargs)
+
+        # Only generate a thumbnail if the file is an image
+        if self.file and self.file.name.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
+            try:
+                # Open the original image
+                img = Image.open(self.file)
+                img.thumbnail((128, 128)) # Max dimensions for the thumbnail
+
+                # Create a file-like object to save the thumbnail
+                thumb_io = BytesIO()
+                # Determine format based on original file extension
+                file_extension = os.path.splitext(self.file.name)[1].lower()
+                if file_extension == '.jpg':
+                    format = 'JPEG'
+                elif file_extension == '.jpeg':
+                    format = 'JPEG'
+                elif file_extension == '.png':
+                    format = 'PNG'
+                elif file_extension == '.gif':
+                    format = 'GIF'
+                else: # Fallback to JPEG for other cases if needed
+                    format = 'JPEG'
+
+                img.save(thumb_io, format=format)
+
+                # Construct the thumbnail file name
+                thumbnail_name = os.path.splitext(os.path.basename(self.file.name))[0] + '_thumb' + file_extension
+                
+                # Check if a thumbnail already exists for this instance
+                if self.thumbnail:
+                    # If it exists, delete the old file to prevent orphans
+                    if os.path.exists(self.thumbnail.path):
+                        os.remove(self.thumbnail.path)
+                    self.thumbnail.delete(save=False) # Clear the field without saving yet
+
+                # Save the thumbnail to the thumbnail field
+                self.thumbnail.save(thumbnail_name, ContentFile(thumb_io.getvalue()), save=False)
+
+            except Exception as e:
+                print(f"Error generating thumbnail for {self.file.name}: {e}")
+        elif self.file:
+            # If not an image, but a file exists, ensure thumbnail field is cleared if it had one
+            if self.thumbnail:
+                if os.path.exists(self.thumbnail.path):
+                    os.remove(self.thumbnail.path)
+                self.thumbnail.delete(save=False)
+        else:
+            # If no file, ensure thumbnail is cleared
+            if self.thumbnail:
+                if os.path.exists(self.thumbnail.path):
+                    os.remove(self.thumbnail.path)
+                self.thumbnail.delete(save=False)
+
+        # Call the original save method again to save the thumbnail path
+        super().save(*args, **kwargs)
