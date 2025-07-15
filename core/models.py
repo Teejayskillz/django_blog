@@ -219,76 +219,108 @@ class Page(models.Model):
             self.slug = slugify(self.title)
         super().save(*args, **kwargs)
 
+
 class Media(models.Model):
     title = models.CharField(max_length=200)
-    file = models.FileField(upload_to='media/') # Original file
-    thumbnail = models.ImageField(upload_to='thumbnails/', blank=True, null=True) # New: Field for the thumbnail
+    file = models.FileField(upload_to='media/') # Original file (optional for thumbnails)
+    thumbnail = models.ImageField(upload_to='thumbnails/', blank=True, null=True) # Field for the thumbnail
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.title
 
     def get_absolute_url(self):
-        # This can still return the original file URL or a specific admin URL
         if self.file:
             return self.file.url
+        # If no main file, but a thumbnail exists, you might link to the thumbnail
+        elif self.thumbnail:
+            return self.thumbnail.url
         return '#'
 
+
     def save(self, *args, **kwargs):
-        # Save the original file firstx to get its path
-        super().save(*args, **kwargs)
-
-        # Only generate a thumbnail if the file is an image
-        if self.file and self.file.name.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
+        # Retrieve the original instance to compare file changes before the current save modifies it.
+        # This helps determine if the 'file' field has truly changed for an existing object.
+        original_file_path = None
+        original_thumbnail_path = None
+        if self.pk: # If it's an existing instance
             try:
-                # Open the original image
-                img = Image.open(self.file)
-                img.thumbnail((128, 128)) # Max dimensions for the thumbnail
+                original_instance = Media.objects.get(pk=self.pk)
+                original_file_path = original_instance.file.name if original_instance.file else None
+                original_thumbnail_path = original_instance.thumbnail.name if original_instance.thumbnail else None
+            except Media.DoesNotExist:
+                pass # New instance, no original to compare with
 
-                # Create a file-like object to save the thumbnail
-                thumb_io = BytesIO()
-                # Determine format based on original file extension
-                file_extension = os.path.splitext(self.file.name)[1].lower()
-                if file_extension == '.jpg':
-                    format = 'JPEG'
-                elif file_extension == '.jpeg':
-                    format = 'JPEG'
-                elif file_extension == '.png':
-                    format = 'PNG'
-                elif file_extension == '.gif':
-                    format = 'GIF'
-                else: # Fallback to JPEG for other cases if needed
-                    format = 'JPEG'
-
-                img.save(thumb_io, format=format)
-
-                # Construct the thumbnail file name
-                thumbnail_name = os.path.splitext(os.path.basename(self.file.name))[0] + '_thumb' + file_extension
-                
-                # Check if a thumbnail already exists for this instance
-                if self.thumbnail:
-                    # If it exists, delete the old file to prevent orphans
-                    if os.path.exists(self.thumbnail.path):
-                        os.remove(self.thumbnail.path)
-                    self.thumbnail.delete(save=False) # Clear the field without saving yet
-
-                # Save the thumbnail to the thumbnail field
-                self.thumbnail.save(thumbnail_name, ContentFile(thumb_io.getvalue()), save=False)
-
-            except Exception as e:
-                print(f"Error generating thumbnail for {self.file.name}: {e}")
-        elif self.file:
-            # If not an image, but a file exists, ensure thumbnail field is cleared if it had one
-            if self.thumbnail:
-                if os.path.exists(self.thumbnail.path):
-                    os.remove(self.thumbnail.path)
-                self.thumbnail.delete(save=False)
-        else:
-            # If no file, ensure thumbnail is cleared
-            if self.thumbnail:
-                if os.path.exists(self.thumbnail.path):
-                    os.remove(self.thumbnail.path)
-                self.thumbnail.delete(save=False)
-
-        # Call the original save method again to save the thumbnail path
+        # Perform the first save to ensure files are uploaded and we have a PK for new instances.
         super().save(*args, **kwargs)
+
+        # Determine if the main 'file' has changed
+        current_file_path = self.file.name if self.file else None
+        file_changed = (original_file_path != current_file_path)
+
+        # --- Thumbnail Generation/Management Logic ---
+
+        # Case 1: An image is uploaded to the 'file' field.
+        if self.file and self.file.name.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
+            # Condition for auto-generating/regenerating thumbnail:
+            # 1. The 'thumbnail' field is currently empty (or was cleared by the user).
+            # OR 2. The main 'file' has changed, and the existing thumbnail was previously auto-generated.
+            #    (We assume any thumbnail not in 'thumbnails/' or matching generated pattern is manual)
+            
+            # Check if the current thumbnail points to a path we'd generate.
+            # This is a heuristic, adjust if your manual upload process uses very similar names.
+            is_auto_generated_thumb = self.thumbnail and \
+                                      self.thumbnail.name.startswith('thumbnails/') and \
+                                      '_thumb' in self.thumbnail.name
+
+            if not self.thumbnail or (file_changed and is_auto_generated_thumb):
+                try:
+                    img = Image.open(self.file.path)
+                    img.thumbnail((128, 128))
+
+                    thumb_io = BytesIO()
+                    file_extension = os.path.splitext(self.file.name)[1].lower()
+                    img_format = 'JPEG' # Default
+                    if file_extension in ('.png',): img_format = 'PNG'
+                    elif file_extension in ('.gif',): img_format = 'GIF'
+
+                    img.save(thumb_io, format=img_format)
+
+                    # Construct a unique thumbnail name for auto-generation
+                    base_name = os.path.splitext(os.path.basename(self.file.name))[0]
+                    from datetime import datetime
+                    unique_suffix = datetime.now().strftime("_%Y%m%d%H%M%S")
+                    thumbnail_name = f"{base_name}{unique_suffix}_auto_thumb{file_extension}" # Added '_auto' for clarity
+
+                    # Delete old auto-generated thumbnail if it exists and a new one is being generated
+                    if original_thumbnail_path and '_auto_thumb' in original_thumbnail_path: # Ensure it's an auto-gen one
+                        if os.path.exists(os.path.join(settings.MEDIA_ROOT, original_thumbnail_path)):
+                            os.remove(os.path.join(settings.MEDIA_ROOT, original_thumbnail_path))
+                        # Note: We don't call self.thumbnail.delete() here, as we are about to set a new one.
+
+                    # Assign the new generated thumbnail
+                    self.thumbnail.save(thumbnail_name, ContentFile(thumb_io.getvalue()), save=False)
+                    super().save(update_fields=['thumbnail']) # Save only the thumbnail field
+
+                except Exception as e:
+                    print(f"Error generating thumbnail for {self.file.name}: {e}")
+                    # If generation fails, ensure the thumbnail field is cleared if it was trying to generate
+                    # and was previously empty.
+                    if not self.thumbnail and not original_thumbnail_path:
+                        self.thumbnail = None
+                        super().save(update_fields=['thumbnail'])
+
+
+        # Case 2: The 'file' field is not an image, or it's empty.
+        # If the 'file' is not an image (e.g., PDF, video), or no 'file' is uploaded,
+        # ensure no auto-generated thumbnail persists.
+        elif file_changed or (not self.file and original_file_path):
+            # If the original file was an image and had an auto-generated thumbnail, remove it.
+            if original_thumbnail_path and '_auto_thumb' in original_thumbnail_path:
+                if os.path.exists(os.path.join(settings.MEDIA_ROOT, original_thumbnail_path)):
+                    os.remove(os.path.join(settings.MEDIA_ROOT, original_thumbnail_path))
+                self.thumbnail.delete(save=False) # Clear the field value
+                super().save(update_fields=['thumbnail']) # Persist change
+
+        # No need for a final super().save(*args, **kwargs) outside, as we either call it with update_fields
+        # or the initial super().save() was sufficient.

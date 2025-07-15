@@ -227,27 +227,31 @@ class PageAdmin(admin.ModelAdmin):
     
 @admin.register(Media)
 class MediaAdmin(admin.ModelAdmin):
-    list_display = ('title', 'uploaded_at', 'thumbnail_preview', 'file_link_display') # Changed to thumbnail_preview
+    list_display = ('title', 'uploaded_at', 'thumbnail_preview', 'file_link_display')
     search_fields = ('title', 'file')
     list_filter = ('uploaded_at',)
-    readonly_fields = ('uploaded_at', 'thumbnail_preview_detail', 'file_link_field') # Add thumbnail_preview_detail to readonly_fields
+    readonly_fields = ('uploaded_at', 'thumbnail_preview_detail', 'file_link_field')
 
     def thumbnail_preview(self, obj):
-        """Displays the generated thumbnail in the list view."""
-        if obj.thumbnail:
+        """Displays the thumbnail in the list view, whether manual or auto-generated."""
+        if obj.thumbnail: # This is the key: if the field HAS a file, display it
             return format_html('<img src="{}" style="max-height: 60px; max-width: 60px; object-fit: contain; border: 1px solid #eee;" />', obj.thumbnail.url)
-        # You could add a generic file icon here if no thumbnail is generated
         return format_html('<i class="fas fa-file fa-2x text-muted" style="line-height: 60px;"></i>')
     thumbnail_preview.short_description = 'Thumbnail'
 
-
     def thumbnail_preview_detail(self, obj):
-        """Displays the generated thumbnail on the detail page."""
-        if obj.thumbnail:
-            return format_html('<img src="{}" class="img-fluid border" style="max-width: 200px; height: auto;" />', obj.thumbnail.url)
-        return '<p class="text-muted">No thumbnail generated or file is not an image.</p>'
+        """Displays the thumbnail on the detail page."""
+        if obj.thumbnail: # Again, checks if the field has a file
+            file_name_lower = obj.thumbnail.name.lower() # Use thumbnail.name for extension check
+            if file_name_lower.endswith(('.png', '.jpg', '.jpeg', '.gif')):
+                return format_html('<img src="{}" class="img-fluid border" style="max-width: 200px; height: auto;" />', obj.thumbnail.url)
+            # You might want to handle video/audio in the thumbnail_preview_detail if your 'thumbnails' folder
+            # could contain actual video/audio files (less common for thumbnails).
+            # For typical image thumbnails of videos/audio, the above `<img>` tag is sufficient.
+            else:
+                 return format_html('<p class="text-muted">File is not a common image format, but linked: <a href="{}" target="_blank">{}</a></p>', obj.thumbnail.url, obj.thumbnail.name)
+        return '<p class="text-muted">No thumbnail available.</p>'
     thumbnail_preview_detail.short_description = 'Thumbnail Preview'
-
 
     def file_link_display(self, obj):
         """Displays a direct link to the original file in the list view."""
