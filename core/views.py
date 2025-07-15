@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import ListView, DetailView
-from .models import Post, Category, Comment, HomepageSection, DownloadQuality, Subtitle
+from .models import Post, Category, Comment, HomepageSection, DownloadQuality, Subtitle, Media
 from .forms import CommentForm
 from django.db.models import Q
 from django.core.paginator import Paginator
@@ -292,3 +292,14 @@ def PageView(request, slug):
     # This view handles the legacy URL pattern for pages
     # It can be used to render static pages or other content
     return render(request, 'core/page.html', {'slug': slug})   
+
+class MediaListView(ListView):
+    model = Media
+    template_name = 'media/media_list.html' # Path to your template
+    context_object_name = 'medias' # The name of the variable that will contain the list of media objects in your template
+    ordering = ['-uploaded_at'] # Order by most recent upload
+
+class MediaDetailView(DetailView):
+    model = Media
+    template_name = 'media/media_detail.html' # Path to your template
+    context_object_name = 'media_item' # The name of the variable that will contain the single media object

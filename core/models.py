@@ -218,3 +218,21 @@ class Page(models.Model):
         if not self.slug:
             self.slug = slugify(self.title)
         super().save(*args, **kwargs)
+
+class Media(models.Model):
+    title = models.CharField(max_length=200)
+    file = models.FileField(upload_to='media/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+    # This method is useful for the admin to have a direct link to the file,
+    # even if it's not a public front-end URL.
+    def get_absolute_url(self):
+        # For backend-only, this can simply return the file's URL
+        # or a link to its detail page within the admin.
+        # If you want a direct link to the file from the admin list:
+        if self.file:
+            return self.file.url
+        return '#' # Or None, if no file

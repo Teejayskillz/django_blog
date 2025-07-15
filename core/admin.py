@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 import os
 from django_ckeditor_5.widgets import CKEditor5Widget
-from .models import Post, Category, Comment, HomepageSection, DownloadQuality, Subtitle, Page
+from .models import Post, Category, Comment, HomepageSection, DownloadQuality, Subtitle, Page, Media 
 
 # WordPress Import Form and Functionality
 class ImportForm(forms.Form):
@@ -224,3 +224,57 @@ class PageAdmin(admin.ModelAdmin):
             'fields': ('title', 'slug', 'content', 'is_published')
         }),
     )
+    
+@admin.register(Media)
+class MediaAdmin(admin.ModelAdmin):
+    list_display = ('title', 'uploaded_at', 'file_link_display', 'file_preview') # Add custom methods to list_display
+    search_fields = ('title', 'file') # Allow searching by title and file name
+    list_filter = ('uploaded_at',) # Allow filtering by upload date
+    readonly_fields = ('uploaded_at', 'file_link_field', 'file_preview_detail') # Make uploaded_at read-only, show file link and preview on detail page
+
+
+    def file_link_display(self, obj):
+        """Displays a direct link to the file in the list view."""
+        if obj.file:
+            return format_html('<a href="{}" target="_blank">{}</a>', obj.file.url, obj.file.name)
+        return "No file"
+    file_link_display.short_description = 'File Link' # Column header in admin
+
+    def file_preview(self, obj):
+        """Displays a small preview for images in the list view."""
+        if obj.file and obj.file.name.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
+            return format_html('<img src="{}" style="max-height: 50px; max-width: 50px;" />', obj.file.url)
+        return "-"
+    file_preview.short_description = 'Preview'
+
+
+    def file_link_field(self, obj):
+        """Displays the direct link to the file on the detail page."""
+        if obj.file:
+            return format_html('<p><strong>Direct File URL:</strong> <a href="{}" target="_blank">{}</a></p>', obj.file.url, obj.file.url)
+        return "No file uploaded."
+    file_link_field.short_description = 'File URL'
+
+    def file_preview_detail(self, obj):
+        """Displays a larger preview for various media types on the detail page."""
+        if obj.file:
+            file_url = obj.file.url
+            file_name_lower = obj.file.name.lower()
+
+            if file_name_lower.endswith(('.png', '.jpg', '.jpeg', '.gif')):
+                return format_html('<img src="{}" class="img-fluid border" style="max-width: 300px; height: auto;" />', file_url)
+            elif file_name_lower.endswith(('.mp4', '.webm', '.ogg')):
+                return format_html('<video controls src="{}" style="max-width: 300px; height: auto;"></video>', file_url)
+            elif file_name_lower.endswith(('.mp3', '.wav', '.ogg')):
+                return format_html('<audio controls src="{}"></audio>', file_url)
+            else:
+                return format_html('<p>No visual preview available. <a href="{}" target="_blank">Download File</a></p>', file_url)
+        return "No file uploaded for preview."
+    file_preview_detail.short_description = 'File Preview'
+
+    # Ensure these custom fields appear in the admin change form
+    fieldsets = (
+        (None, {
+            'fields': ('title', 'file', 'uploaded_at', 'file_link_field', 'file_preview_detail')
+        }),
+    )    
