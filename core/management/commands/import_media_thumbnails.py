@@ -3,7 +3,7 @@ import os
 from django.core.management.base import BaseCommand
 from django.core.files import File
 from django.conf import settings
-from your_app_name.models import Media # Replace your_app_name
+from core.models import Media # Replace your_app_name
 
 class Command(BaseCommand):
     help = 'Imports existing images from MEDIA_ROOT/thumbnails/ into the Media model.'
