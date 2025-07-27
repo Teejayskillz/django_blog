@@ -192,25 +192,13 @@ class Subtitle(models.Model):
     download_url = models.URLField()
     is_auto_generated = models.BooleanField(default=False)
     download_count = models.PositiveIntegerField(default=0)
-    
 class MyCustomTag(TaggitTag):
     class Meta:
-        proxy = True # Use proxy=True if you just want to add methods/managers without a new table
+        proxy = True # This is correct
 
     def get_absolute_url(self):
-        # Assumes you have a URL pattern named 'tag_detail'
-        # that takes the tag's slug as an argument.
+        # This is perfect. It will work once the URL pattern is fixed.
         return reverse('tag_detail', kwargs={'slug': self.slug})
-
-    def save(self, *args, **kwargs):
-        if not self.slug or self.slug == '-': # Check for empty or problematic slugs
-            self.slug = slugify(self.name)
-            # If slugify(self.name) also results in an empty or problematic slug,
-            # you might want a default like 'untitled-tag' or raise a validation error.
-            if not self.slug or self.slug == '-':
-                self.slug = f"tag-{self.id}" # Fallback to a unique slug
-        super().save(*args, **kwargs)    
-        
 class Page(models.Model):
     title = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200, unique=True)
