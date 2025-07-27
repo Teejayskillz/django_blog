@@ -1,37 +1,67 @@
 # core/sitemaps.py
 from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
-from core.models import Post # Import Post model from your core app
+from django.db.models import Count, Q
 
+# Import all your needed models
+from core.models import Post, Category, MyCustomTag 
+
+# --- PostSitemap ---
 class PostSitemap(Sitemap):
     changefreq = "daily"
     priority = 0.9
 
     def items(self):
-        # IMPORTANT CHANGE: Filter for posts that are published AND have a category assigned
-        # This prevents errors if a Post's category is null.
         return Post.objects.filter(is_published=True, category__isnull=False).order_by('-published_date')
 
     def lastmod(self, obj):
-        # Return the last modification date for each post.
-        # Use updated_date if it exists and is set, otherwise fall back to published_date.
         return obj.updated_date if hasattr(obj, 'updated_date') and obj.updated_date else obj.published_date
 
     def location(self, obj):
-        # This calls the get_absolute_url() method on your Post model.
-        # Since we're filtering for category__isnull=False in items(),
-        # obj.category will always be a valid Category object here.
         return obj.get_absolute_url()
 
-# You can add more Sitemap classes for other models/pages if needed.
+# --- CategorySitemap ---
+class CategorySitemap(Sitemap):
+    changefreq = "weekly"
+    priority = 0.8
+
+    def items(self):
+        return Category.objects.annotate(
+            num_posts=Count('post', filter=Q(post__is_published=True))
+        ).filter(num_posts__gt=0)
+
+    def lastmod(self, obj):
+        latest_post = obj.post_set.filter(is_published=True).latest('published_date')
+        return latest_post.published_date
+
+    def location(self, obj):
+        return obj.get_absolute_url()
+
+# --- NEW: TagSitemap ---
+class TagSitemap(Sitemap):
+    changefreq = "weekly"
+    priority = 0.7
+
+    def items(self):
+        # Only include tags used on at least one published post
+        used_tag_ids = Post.objects.filter(is_published=True).values_list('tags', flat=True).distinct()
+        return MyCustomTag.objects.filter(id__in=used_tag_ids)
+
+    def lastmod(self, obj):
+        # Use the date of the newest post that has this tag
+        return Post.objects.filter(is_published=True, tags__in=[obj]).latest('published_date').published_date
+
+    def location(self, obj):
+        # Uses the get_absolute_url() method from your MyCustomTag model
+        return obj.get_absolute_url()
+
+# --- StaticViewSitemap ---
 class StaticViewSitemap(Sitemap):
     priority = 0.8
     changefreq = "monthly"
 
     def items(self):
-        # List the names of your static views (e.g., home, about, contact)
-        # Ensure these names exist in your core/urls.py or project urls.py
-        return ['home', 'search'] # Updated based on your core/urls.py, add others as needed
+        return ['home', 'search'] 
 
     def location(self, item):
         return reverse(item)

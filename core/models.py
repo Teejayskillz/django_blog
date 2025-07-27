@@ -8,6 +8,11 @@ from django_resized import ResizedImageField
 from django_ckeditor_5.fields import CKEditor5Field
 from django.urls import reverse
 from django.utils.text import slugify
+import os 
+from django.conf import settings
+from django.core.files.base import ContentFile
+from PIL import Image
+from io import BytesIO
 
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -15,6 +20,11 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        # Assumes you have a URL pattern named 'category_detail'
+        # that takes the category's slug as an argument.
+        return reverse('category', kwargs={'slug': self.slug})
 
 class Post(models.Model):
     title = models.CharField(max_length=200)
@@ -186,6 +196,11 @@ class Subtitle(models.Model):
 class MyCustomTag(TaggitTag):
     class Meta:
         proxy = True # Use proxy=True if you just want to add methods/managers without a new table
+
+    def get_absolute_url(self):
+        # Assumes you have a URL pattern named 'tag_detail'
+        # that takes the tag's slug as an argument.
+        return reverse('tag_detail', kwargs={'slug': self.slug})
 
     def save(self, *args, **kwargs):
         if not self.slug or self.slug == '-': # Check for empty or problematic slugs

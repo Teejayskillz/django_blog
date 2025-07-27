@@ -19,12 +19,14 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.static import serve
-from core.sitemaps import PostSitemap, StaticViewSitemap # Import your sitemap classes
+from core.sitemaps import PostSitemap, CategorySitemap, TagSitemap, StaticViewSitemap
 from django.contrib.sitemaps.views import sitemap
 from core.views import robots_txt
 
 sitemaps = {
     'blog': PostSitemap, 
+    'categories': CategorySitemap,
+    'tags': TagSitemap,
     'static': StaticViewSitemap,
 }
 
