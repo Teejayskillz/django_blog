@@ -190,6 +190,7 @@ DATABASES = {
         'PASSWORD': os.getenv('DB_PASSWORD'), # Read from .env
         'HOST': os.getenv('DB_HOST'),        # Read from .env
         'PORT': os.getenv('DB_PORT'),        # Read from .env
+        'CONN_MAX_AGE': 60, 
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
             # For older MySQL versions or specific needs:
