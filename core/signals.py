@@ -61,14 +61,14 @@ def auto_post_to_telegram(sender, instance, **kwargs):
         escaped_excerpt_or_content = escape_markdown(content_for_message, version=2)
 
         # --- WhatsApp Channel Information ---
-        whatsapp_channel_url = "https://whatsapp.com/channel/0029VaZdUiBEAKWIhQCJTg1d"
+        whatsapp_channel_url = "https://chat.whatsapp.com/E85YULAhuCT8TIWMFSvQ9M?mode=ac_t"
         # Escape the WhatsApp URL as it will be displayed directly and contains dots
         escaped_whatsapp_channel_url = escape_markdown(whatsapp_channel_url, version=2)
 
         # --- CONSTRUCT CAPTION TEXT ---
         caption_text = f"📢 **{escaped_title}**\n\n"
-        caption_text += f"{escaped_excerpt_or_content}\n\n"
-        caption_text += f"🔗 {escaped_post_url}"
+       # caption_text += f"{escaped_excerpt_or_content}\n\n"
+        caption_text += f"DOWNLOAD: {escaped_post_url}"
         
         # --- ADDING WHATSAPP LINK BELOW POST URL ---
         # Added two newlines (\n\n) for spacing between the post link and the WhatsApp info
