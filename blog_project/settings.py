@@ -171,6 +171,7 @@ TEMPLATES = [
                 'core.context_processors.global_sidebar_context',
                 'core.context_processors.trending_posts_processor',
                 'ads.context_processors.ads_context',
+                'core.context_processors.site_settings', 
             ],
         },
     },

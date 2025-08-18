@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 import os
 from django_ckeditor_5.widgets import CKEditor5Widget
-from .models import Post, Category, Comment, HomepageSection, DownloadQuality, Subtitle, Page, Media 
+from .models import Post, Category, Comment, HomepageSection, DownloadQuality, Subtitle, Page, Media , SiteSettings
 
 # WordPress Import Form and Functionality
 class ImportForm(forms.Form):
@@ -274,3 +274,8 @@ class MediaAdmin(admin.ModelAdmin):
             'fields': ('title', 'file', 'thumbnail_preview_detail', 'file_link_field', 'uploaded_at')
         }),
     )
+
+@admin.register(SiteSettings)
+class SiteSettingsAdmin(admin.ModelAdmin):
+    list_display = ['site_name', 'site_title']
+    fields = ['site_title', 'site_name']

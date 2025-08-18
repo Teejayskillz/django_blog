@@ -1,5 +1,5 @@
 # core/context_processors.py
-from .models import Post, Category
+from .models import Post, Category , SiteSettings # Import SiteSettings
 from taggit.models import Tag, TaggedItem # Import TaggedItem
 from django.db.models import Count, Q # Ensure Q is imported for filtering
 from django.utils import timezone
@@ -74,3 +74,13 @@ def trending_posts_processor(request):
         'trending_posts': trending_posts,
         'selected_time_frame': time_frame,
     }    
+
+def site_settings(request):
+    try:
+        settings = SiteSettings.load()
+    except:
+        # If there's an error, create default settings
+        settings = SiteSettings()
+    return {
+        'site_settings': settings
+    }

@@ -14,6 +14,34 @@ from django.core.files.base import ContentFile
 from PIL import Image
 from io import BytesIO
 
+class SiteSettings(models.Model):
+    site_title = models.CharField(
+        max_length=200, 
+        default='Watch Latest Movies & TV Shows',
+        help_text='Default title for pages without specific titles'
+    )
+    site_name = models.CharField(
+        max_length=100, 
+        default='Hypeblog9jaTV'
+    )
+    
+    class Meta:
+        verbose_name = "Site Settings"
+        verbose_name_plural = "Site Settings"
+    
+    def __str__(self):
+        return "Site Settings"
+    
+    # Ensure only one instance exists
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+    
+    @classmethod
+    def load(cls):
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj
+    
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(max_length=100, unique=True)
