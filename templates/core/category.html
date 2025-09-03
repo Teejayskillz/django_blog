@@ -3,6 +3,11 @@
 
 {% block title %}Category: {{ category.name }} - {{ block.super }}{% endblock %}
 
+{% block meta_description %}
+    {# Use the new `category.meta_description` field if it exists, otherwise fall back to the `description` field. #}
+    <meta name="description" content="{{ category.meta_description|default:category.description|default:category.name|truncatechars:155|striptags }}">
+{% endblock %}
+
 {% block content %}
 
 <div class="container my-4">

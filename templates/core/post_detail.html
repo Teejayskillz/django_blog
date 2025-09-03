@@ -25,25 +25,25 @@
     <div class="ad-slot-container header-ad-container"> {# Added new class for specific control #}
         {{ ads_by_slug.thumbnail1|safe }}
     </div>
-
-    {% if post.thumbnail %}
-    <div class="featured-image">
-        <img src="{{ post.thumbnail.url }}"
-             alt="{{ post.title }}"
-             class="img-fluid w-100 rounded"
-             style="max-height: 500px; object-fit: cover;"
-             loading="lazy">
-    </div>
-    {% else %}
-    <div class="featured-image">
-        <img src="{% static 'images/default_thumbnail.jpg' %}"
-             alt="No Image"
-             class="img-fluid w-100 rounded"
-             style="max-height: 500px; object-fit: cover;"
-             loading="lazy">
-    </div>
-    {% endif %}
-
+<div class="featured-image">
+    <a href="{{ request.build_absolute_uri }}" 
+       title="Link to {{ post.title }}"
+       style="text-decoration: none; display: block;">
+        {% if post.thumbnail %}
+            <img src="{{ post.thumbnail.url }}"
+                 alt="{{ post.title }}"
+                 class="img-fluid w-100 rounded"
+                 style="max-height: 500px; object-fit: cover;"
+                 loading="lazy">
+        {% else %}
+            <img src="{% static 'images/default_thumbnail.jpg' %}"
+                 alt="No Image"
+                 class="img-fluid w-100 rounded"
+                 style="max-height: 500px; object-fit: cover;"
+                 loading="lazy">
+        {% endif %}
+    </a>
+</div>
     <div class="ad-slot-container header-ad-container"> {# Added new class for specific control #}
         {{ ads_by_slug.thumbnail2|safe }}
     </div>

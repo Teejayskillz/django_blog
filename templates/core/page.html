@@ -5,6 +5,11 @@
     {{ page.title|default:"Page Title" }} {# Assumes you pass a 'page' object with a 'title' attribute #}
 {% endblock title %}
 
+{% block meta_description %}
+    {# Uses the meta_description field if available, otherwise truncates and strips tags from the main content. #}
+    <meta name="description" content="{{ page.meta_description|default:page.content|truncatechars:155|striptags }}">
+{% endblock meta_description %}
+
 {% block content %}
 <div class="container my-5"> {# Using Bootstrap container for responsiveness and spacing #}
     <div class="row justify-content-center">
