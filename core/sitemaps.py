@@ -28,7 +28,7 @@ class CategorySitemap(Sitemap):
     def items(self):
         return Category.objects.annotate(
             num_posts=Count('post', filter=Q(post__is_published=True))
-        ).filter(num_posts__gt=0)
+        ).filter(num_posts__gt=0).order_by('name') # Added .order_by('name')
 
     def lastmod(self, obj):
         latest_post = obj.post_set.filter(is_published=True).latest('published_date')
@@ -45,7 +45,7 @@ class TagSitemap(Sitemap):
     def items(self):
         # Only include tags used on at least one published post
         used_tag_ids = Post.objects.filter(is_published=True).values_list('tags', flat=True).distinct()
-        return MyCustomTag.objects.filter(id__in=used_tag_ids)
+        return MyCustomTag.objects.filter(id__in=used_tag_ids).order_by('name') # Added .order_by('name')
 
     def lastmod(self, obj):
         # Use the date of the newest post that has this tag

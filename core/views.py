@@ -6,10 +6,14 @@ from django.db.models import Q
 from django.core.paginator import Paginator
 from django.http import HttpResponseRedirect
 from taggit.models import Tag 
-
+from .sitemaps import PostSitemap, CategorySitemap, TagSitemap, StaticViewSitemap
+from django.contrib.sitemaps.views import sitemap as sitemap_view, index as sitemap_index_view
+from django.http import HttpResponse
+from django.urls import reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
 from django.conf import settings
+from django.views.static import serve
 
 def home(request):
     # Get all active homepage sections
@@ -305,3 +309,47 @@ class MediaDetailView(DetailView):
     model = Media
     template_name = 'media/media_detail.html' # Path to your template
     context_object_name = 'media_item' # The name of the variable that will contain the single media object
+
+def styled_sitemap(request):
+    """
+    Custom view to serve a styled sitemap index for human users.
+    """
+    sitemaps = {
+        'blog': PostSitemap,
+        'categories': CategorySitemap,
+        'tags': TagSitemap,
+        'static': StaticViewSitemap,
+    }
+    
+    response = sitemap_index_view(request, sitemaps=sitemaps)
+    response.render() 
+    
+    xml_content = response.content.decode('utf-8')
+    
+    # ⭐ FIX: The stylesheet link must be on a new line after the xml declaration.
+    # The XML declaration must be the very first line of the document with no preceding characters.
+    stylesheet_link = f'<?xml-stylesheet type="text/xsl" href="{ reverse("styled_sitemap_stylesheet") }"?>\n'
+    
+    # Find the position of the XML declaration and insert the stylesheet after it.
+    # This is a more robust way to handle the insertion.
+    insert_pos = xml_content.find('?>') + 2  # Find the end of the XML declaration
+    
+    styled_xml = xml_content[:insert_pos] + '\n' + stylesheet_link + xml_content[insert_pos:]
+    
+    return HttpResponse(styled_xml, content_type='application/xml')
+
+
+
+from django.http import Http404
+def sitemap_stylesheet(request):
+    """
+    View to serve the sitemap.xsl static file, with a check for the directory.
+    """
+    if not settings.STATICFILES_DIRS:
+        # If STATICFILES_DIRS is empty, return a 404 or a clear message.
+        raise Http404("STATICFILES_DIRS is not configured to serve sitemap.xsl.")
+    
+    # Safely access the first element of the list
+    document_root = settings.STATICFILES_DIRS[0]
+    
+    return serve(request, 'sitemap.xsl', document_root=document_root, show_indexes=False)
