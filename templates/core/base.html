@@ -50,6 +50,14 @@
     
     <meta name="twitter:site" content="@Hypeblog9jaTV">
     <meta name="twitter:creator" content="@YourCreatorHandle">
+
+    {% if page_obj.has_previous %}
+    <link rel="prev" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">
+{% endif %}
+{% if page_obj.has_next %}
+    <link rel="next" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}">
+{% endif %}
+
     
     {# Canonical URL - Use the pre-calculated absolute URL #}
     <link rel="canonical" href="{{ post_absolute_url }}" />
