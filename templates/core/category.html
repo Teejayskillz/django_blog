@@ -4,10 +4,16 @@
 {% block title %}Category: {{ category.name }} - {{ block.super }}{% endblock %}
 
 {% block meta_description %}
-    {# Use the new `category.meta_description` field if it exists, otherwise fall back to the `description` field. #}
-    <meta name="description" content="{{ category.meta_description|default:category.description|default:category.name|truncatechars:155|striptags }}">
+    {% if is_paginated %}
+    {% if page_obj.number > 1 %}
+    <meta name="description" content="Page {{ page_obj.number }} of {{ category.name }} posts. Browse our latest {{ category.name }} content and articles.">
+    {% else %}
+    <meta name="description" content="{{ category.meta_description|default:category.description|default:'Explore all our latest movies in the ' | add:category.name | add:' category.'|truncatechars:155|striptags }}">
+    {% endif %}
+    {% else %}
+    <meta name="description" content="{{ category.meta_description|default:category.description|default:'Explore all our latest movies in the ' | add:category.name | add:' category.'|truncatechars:155|striptags }}">
+    {% endif %}
 {% endblock %}
-
 {% block content %}
 
 <div class="container my-4">

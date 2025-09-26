@@ -2,6 +2,15 @@
 
 {% block title %}Posts Tagged: "{{ tag.name }}"{% endblock %}
 
+{% block meta_description %}
+    {% if is_paginated and page_obj.number > 1 %}
+    <meta name="description" content="Page {{ page_obj.number }} of posts tagged with '{{ tag.name }}'. Explore our full collection of movies on this tag.">
+    {% else %}
+    <meta name="description" content="Browse all posts and articles on our site tagged with '{{ tag.name }}'. Discover the latest movies and insights related to this tag.">
+    {% endif %}
+{% endblock %}
+
+
 {% block content %}
 <div class="container my-4"> {# Use a container for better layout #}
     <div class="row justify-content-center">
