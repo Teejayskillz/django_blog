@@ -107,7 +107,7 @@ class Post(models.Model):
 
     author = models.ForeignKey(User, on_delete=models.CASCADE, default=2)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
-    tags = TaggableManager()  # Tags using django-taggit
+    tags = TaggableManager(blank=True)  # Tags using django-taggit
     published_date = models.DateTimeField(auto_now_add=True)
     is_published = models.BooleanField(default=True)
 
