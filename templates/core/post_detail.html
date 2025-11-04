@@ -52,39 +52,7 @@
         {{ post.content|safe }}
     </div>
 
-            {% if related_posts %}
-    <section class="related-posts">
-        <h3 class="mb-4">Related {{ post.category.name }}</h3>
-        <div class="row">
-            {% for related in related_posts %}
-            <div class="col-md-3 mb-4">
-                <div class="card h-100">
-                    {% if related.thumbnail %}
-                    <img src="{{ related.thumbnail.url }}"
-                         class="card-img-top"
-                         alt="{{ related.title }}"
-                         style="height: 200px; object-fit: cover;"
-                         loading="lazy">
-                    {% else %}
-                    <img src="{% static 'images/default_thumbnail.jpg' %}"
-                         class="card-img-top"
-                         alt="No Image"
-                         style="height: 200px; object-fit: cover;"
-                         loading="lazy">
-                    {% endif %}
-                    <div class="card-body">
-                        <h5 class="card-title">{{ related.title|truncatechars:40 }}</h5>
-                        <a href="{{ related.get_absolute_url }}" class="btn btn-sm btn-outline-primary">
-                            Read More
-                        </a>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </section>
-    {% endif %}
-
+         
     {% if show_download_section %}
     <div class="download-section">
         <h4 class="section-title">
@@ -144,6 +112,40 @@
 
     </div>
     {% endif %}
+
+       {% if related_posts %}
+    <section class="related-posts">
+        <h3 class="mb-4">Related {{ post.category.name }}</h3>
+        <div class="row">
+            {% for related in related_posts %}
+            <div class="col-md-3 mb-4">
+                <div class="card h-100">
+                    {% if related.thumbnail %}
+                    <img src="{{ related.thumbnail.url }}"
+                         class="card-img-top"
+                         alt="{{ related.title }}"
+                         style="height: 200px; object-fit: cover;"
+                         loading="lazy">
+                    {% else %}
+                    <img src="{% static 'images/default_thumbnail.jpg' %}"
+                         class="card-img-top"
+                         alt="No Image"
+                         style="height: 200px; object-fit: cover;"
+                         loading="lazy">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ related.title|truncatechars:40 }}</h5>
+                        <a href="{{ related.get_absolute_url }}" class="btn btn-sm btn-outline-primary">
+                            Read More
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
 
     <div class="share-buttons mt-5">
         <h5>Share this post:</h5>
