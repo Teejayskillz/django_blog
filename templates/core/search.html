@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-{% load static %} {# Load static files for default_thumbnail.jpg #}
+{% load static %}
 
 {% block title %}Search Results for "{{ query }}"{% endblock %}
 
@@ -26,15 +26,18 @@
 
                 <div class="search-header mb-4">
                     <h2 class="search-title mb-2">
-                        <i class="bi bi-search me-2"></i>Search Results for: "<span class="query-highlight">{{ query }}</span>"
+                        <i class="bi bi-search me-2"></i>
+                        Search Results for: "<span class="query-highlight">{{ query }}</span>"
                     </h2>
+
                     {% if results %}
                     <div class="results-info">
                         <span class="text-muted">
                             {% if is_paginated %}
-                            Showing {{ page_obj.start_index }} - {{ page_obj.end_index }} of {{ page_obj.paginator.count }} results
+                                Showing {{ page_obj.start_index }} - {{ page_obj.end_index }}
+                                of {{ page_obj.paginator.count }} results
                             {% else %}
-                            {{ results|length }} result{{ results|length|pluralize }}
+                                {{ results|length }} result{{ results|length|pluralize }}
                             {% endif %}
                         </span>
                     </div>
@@ -45,27 +48,32 @@
                 <div class="latest-updates-grid">
                     {% for post in results %}
                     <a href="{% url 'post_detail' category=post.category.slug slug=post.slug %}" class="post-card">
-                        {% if post.thumbnail %}
                         <div class="post-card-img-container">
-                            <img src="{{ post.thumbnail.url }}" alt="{{ post.title }}" loading="lazy">
+                            {% if post.thumbnail %}
+                                <img src="{{ post.thumbnail.url }}" alt="{{ post.title }}" loading="lazy">
+                            {% else %}
+                                <img src="{% static 'images/default_thumbnail.jpg' %}" alt="No Image" loading="lazy">
+                            {% endif %}
                         </div>
-                        {% else %}
-                        <div class="post-card-img-container">
-                            <img src="{% static 'images/default_thumbnail.jpg' %}" alt="No Image" loading="lazy">
-                        </div>
-                        {% endif %}
+
                         <div class="post-card-content">
                             <h3>{{ post.title }}</h3>
+
                             <div class="post-meta">
                                 <span class="post-date">
-                                    <i class="bi bi-calendar3 me-1"></i>{{ post.published_date|date:"M j, Y" }}
+                                    <i class="bi bi-calendar3 me-1"></i>
+                                    {{ post.published_date|date:"M j, Y" }}
                                 </span>
+
                                 {% if post.category %}
-                                <span class="category-badge">{{ post.category.name }}</span>
+                                    <span class="category-badge">{{ post.category.name }}</span>
                                 {% endif %}
                             </div>
+
                             {% if post.excerpt %}
-                            <p class="post-excerpt">{{ post.excerpt|truncatechars:120 }}</p>
+                                <p class="post-excerpt">
+                                    {{ post.excerpt|truncatechars:120 }}
+                                </p>
                             {% endif %}
                         </div>
                     </a>
@@ -76,9 +84,11 @@
                 <div class="pagination-container">
                     <nav aria-label="Search results pagination">
                         <ul class="pagination-list">
+
                             {% if page_obj.has_previous %}
                             <li class="page-item">
-                                <a class="page-link prev-next" href="?query={{ query }}&page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                                <a class="page-link prev-next"
+                                   href="?q={{ query }}&page={{ page_obj.previous_page_number }}">
                                     <i class="bi bi-chevron-left"></i>
                                     <span>Previous</span>
                                 </a>
@@ -91,40 +101,31 @@
                                 </span>
                             </li>
                             {% endif %}
-                            
+
                             {% for num in page_obj.paginator.page_range %}
                                 {% if page_obj.number == num %}
-                                <li class="page-item active">
-                                    <span class="page-link current">{{ num }}</span>
-                                </li>
+                                    <li class="page-item active">
+                                        <span class="page-link current">{{ num }}</span>
+                                    </li>
                                 {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                                <li class="page-item">
-                                    <a class="page-link" href="?query={{ query }}&page={{ num }}">{{ num }}</a>
-                                </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?q={{ query }}&page={{ num }}">{{ num }}</a>
+                                    </li>
                                 {% elif num == 1 %}
-                                <li class="page-item">
-                                    <a class="page-link" href="?query={{ query }}&page={{ num }}">{{ num }}</a>
-                                </li>
-                                {% if page_obj.number > 4 %}
-                                <li class="page-item disabled">
-                                    <span class="page-link">...</span>
-                                </li>
-                                {% endif %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?q={{ query }}&page=1">1</a>
+                                    </li>
                                 {% elif num == page_obj.paginator.num_pages %}
-                                {% if page_obj.number < page_obj.paginator.num_pages|add:'-3' %}
-                                <li class="page-item disabled">
-                                    <span class="page-link">...</span>
-                                </li>
-                                {% endif %}
-                                <li class="page-item">
-                                    <a class="page-link" href="?query={{ query }}&page={{ num }}">{{ num }}</a>
-                                </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?q={{ query }}&page={{ num }}">{{ num }}</a>
+                                    </li>
                                 {% endif %}
                             {% endfor %}
-                            
+
                             {% if page_obj.has_next %}
                             <li class="page-item">
-                                <a class="page-link prev-next" href="?query={{ query }}&page={{ page_obj.next_page_number }}" aria-label="Next">
+                                <a class="page-link prev-next"
+                                   href="?q={{ query }}&page={{ page_obj.next_page_number }}">
                                     <span>Next</span>
                                     <i class="bi bi-chevron-right"></i>
                                 </a>
@@ -137,29 +138,29 @@
                                 </span>
                             </li>
                             {% endif %}
+
                         </ul>
                     </nav>
-                    
+
                     <div class="page-info">
-                        <span class="text-muted">
-                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-                        </span>
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
                     </div>
                 </div>
                 {% endif %}
 
                 {% else %}
-                <div class="no-results">
-                    <div class="text-center py-5">
-                        <i class="bi bi-search-heart-fill" style="font-size: 4rem; color: #666666; margin-bottom: 20px;"></i> {# Hardcoded for visibility #}
-                        <h3 class="mb-3" style="color: #000000;">No results found for "<span class="text-danger">{{ query }}</span>"</h3> {# Hardcoded for visibility #}
-                        <p style="color: #666666;" class="mb-4">Please try a different keyword or check your spelling.</p> {# Hardcoded for visibility #}
-                        <a href="{% url 'home' %}" class="btn btn-outline-dark">
-                            <i class="bi bi-arrow-left me-2"></i>Back to Home
-                        </a>
-                    </div>
+                <div class="no-results text-center py-5">
+                    <i class="bi bi-search-heart-fill" style="font-size:4rem;color:#666;"></i>
+                    <h3 class="mt-3">
+                        No results found for "<span class="text-danger">{{ query }}</span>"
+                    </h3>
+                    <p class="text-muted">Try a different keyword.</p>
+                    <a href="{% url 'home' %}" class="btn btn-outline-dark mt-3">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Home
+                    </a>
                 </div>
                 {% endif %}
+
             </div>
         </div>
     </div>
