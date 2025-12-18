@@ -200,28 +200,63 @@ class PostDetailView(DetailView):
         context = self.get_context_data()
         context['comment_form'] = form
         return self.render_to_response(context)
-
 def search(request):
-    query = request.GET.get('q', '')
-    results = Post.objects.none()
-
-    if query:
-        results = Post.objects.filter(
-            Q(title__icontains=query) |
-            Q(content__icontains=query) |
-            Q(excerpt__icontains=query),
-            is_published=True
-        ).order_by('-published_date')
-
+    query = request.GET.get('q')
+    results = Post.objects.filter(
+        Q(title__icontains=query) | 
+        Q(content__icontains=query),
+        is_published=True
+    ).order_by('-published_date')
+    
     paginator = Paginator(results, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-
+    
     return render(request, 'core/search.html', {
         'query': query,
-        'page_obj': page_obj,
+        'page_obj': page_obj
     })
+    
+    
 
+def search(request):  # Renamed to 'search' to match your original function name
+    query = request.GET.get('q', '') # Changed 'query' to 'q' to match your original 'request.GET.get('q', '')'
+    results = []
+    page_obj = None
+    is_paginated = False
+    
+    if query:
+        # Search in title, content, and excerpt fields
+        results = Post.objects.filter(
+            Q(title__icontains=query) | 
+            Q(content__icontains=query) | 
+            Q(excerpt__icontains=query), # Added excerpt field
+            is_published=True  # CHANGED THIS LINE: Used 'is_published' instead of 'status'
+        ).order_by('-published_date')  # Order by newest first
+        
+        # Pagination
+        paginator = Paginator(results, 12)  # Show 12 posts per page
+        page_number = request.GET.get('page')
+        
+        try:
+            page_obj = paginator.get_page(page_number)
+            results = page_obj.object_list
+            is_paginated = paginator.num_pages > 1
+        except PageNotAnInteger:
+            page_obj = paginator.get_page(1)
+            results = page_obj.object_list
+        except EmptyPage:
+            page_obj = paginator.get_page(paginator.num_pages)
+            results = page_obj.object_list
+    
+    context = {
+        'query': query,
+        'results': results,
+        'page_obj': page_obj,
+        'is_paginated': is_paginated,
+    }
+    
+    return render(request, 'core/search.html', context) # Kept your original template name 'core/search.html'
 def download_quality(request, pk):
     quality = get_object_or_404(DownloadQuality, pk=pk)
     quality.download_count += 1
