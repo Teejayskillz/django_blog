@@ -251,10 +251,10 @@ TELEGRAM_CHANNEL_IDS = TELEGRAM_CHANNEL_IDS = [
     '@naijarocks_com_ng',
     '@naijarockscom', 
     '@naijarocksfiles',
-    '@awafilmnew'
-    '@+ajUIyx0E-UFhYjU0'
-    '@hypeblog9jamovies'
-    '@awafilmnew'
+    '@awafilmnew',
+    '@+ajUIyx0E-UFhYjU0',
+    '@hypeblog9jamovies',
+    '@awafilmnew',
 ]
 
 # Django Sites Framework
