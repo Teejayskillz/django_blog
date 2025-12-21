@@ -282,7 +282,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const paragraphs = postContent.querySelectorAll('p');
 
     // Insert after paragraph 2
-    if (paragraphs.length >= 2) {
+    if (paragraphs.length >= 1) {
         paragraphs[1].insertAdjacentElement('afterend', relatedPost);
     } else {
         // Fallback if post is too short
