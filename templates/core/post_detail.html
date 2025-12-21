@@ -54,23 +54,19 @@
 
     {% load static %}
 {% if related_posts %}
-    <section class="related-posts text-center my-4">
+    <section class="related-posts related-inline text-center my-4">
         
-        {# 1. Pick one random post from the list and store it in a variable #}
         {% with random_post=related_posts|random %}
-
-            {# 2. The main heading showing the requested text #}
             <h4 class="mb-2">RELATED POST :
-                {# 3. The post title, wrapped in the anchor tag (link) #}
-                <a href="{{ random_post.get_absolute_url }}" class="related-post-link" title="{{ random_post.title }}">
+                <a href="{{ random_post.get_absolute_url }}"
+                   class="related-post-link"
+                   title="{{ random_post.title }}">
                     {{ random_post.title }}
                 </a>
             </h4>
-            
         {% endwith %}
 
     </section>
-   
 {% endif %}
 
          
@@ -275,14 +271,14 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const postContent = document.querySelector('.post-content');
-    const relatedPost = document.querySelector('.related-posts');
+    const relatedPost = document.querySelector('.related-inline');
 
     if (!postContent || !relatedPost) return;
 
     const paragraphs = postContent.querySelectorAll('p');
 
     // Insert after paragraph 2
-    if (paragraphs.length >= 1) {
+    if (paragraphs.length >= 2) {
         paragraphs[1].insertAdjacentElement('afterend', relatedPost);
     } else {
         // Fallback if post is too short
