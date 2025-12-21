@@ -272,6 +272,25 @@
     </div>
 </article>
 
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const postContent = document.querySelector('.post-content');
+    const relatedPost = document.querySelector('.related-posts');
+
+    if (!postContent || !relatedPost) return;
+
+    const paragraphs = postContent.querySelectorAll('p');
+
+    // Insert after paragraph 2
+    if (paragraphs.length >= 2) {
+        paragraphs[1].insertAdjacentElement('afterend', relatedPost);
+    } else {
+        // Fallback if post is too short
+        postContent.appendChild(relatedPost);
+    }
+});
+</script>
+
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
