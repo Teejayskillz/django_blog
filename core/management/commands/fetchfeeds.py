@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from feeds.utils import fetch_feeds
+from core.utils import fetch_feeds
 
 
 class Command(BaseCommand):
