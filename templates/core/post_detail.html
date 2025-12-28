@@ -50,6 +50,16 @@
 
     <div class="post-content mb-5">
         {{ post.content|safe }}
+
+        {% if post.is_external %}
+  <p class="source-note">
+    Source:
+    <a href="{{ post.source_url }}" target="_blank" rel="nofollow noopener">
+      {{ post.source.name }}
+    </a>
+  </p>
+{% endif %}
+
     </div>
 
     {% load static %}
@@ -162,6 +172,8 @@
         </div>
     </section>
     {% endif %}
+
+    
 
 
     <div class="share-buttons mt-5">

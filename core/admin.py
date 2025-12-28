@@ -279,3 +279,12 @@ class MediaAdmin(admin.ModelAdmin):
 class SiteSettingsAdmin(admin.ModelAdmin):
     list_display = ['site_name', 'site_title']
     fields = ['site_title', 'site_name']
+
+
+from .models import FeedSource
+
+@admin.register(FeedSource)
+class FeedSourceAdmin(admin.ModelAdmin):
+    list_display = ("name", "feed_url", "is_active", "last_fetched")
+    list_filter = ("is_active",)
+    search_fields = ("name", "feed_url")
