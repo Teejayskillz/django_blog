@@ -112,7 +112,7 @@ class Post(models.Model):
     is_published = models.BooleanField(default=True)
 
     source = models.ForeignKey(
-        "feeds.FeedSource",
+        "core.FeedSource",
         on_delete=models.SET_NULL,
         null=True,
         blank=True
