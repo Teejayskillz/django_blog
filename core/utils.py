@@ -2,7 +2,7 @@ import feedparser
 from django.utils import timezone
 from django.utils.text import slugify
 from core.models import Post
-from .models import FeedSource
+from core.models import FeedSource
 
 def fetch_feeds():
     sources = FeedSource.objects.filter(is_active=True)
