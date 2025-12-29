@@ -1,12 +1,14 @@
 {% extends "admin/change_list.html" %}
 
 {% block object-tools %}
-{{ block.super }}
-<ul class="object-tools">
-    <li>
-        <a href="fetch-feeds/" class="addlink">
-            🔄 Fetch Feeds Now
-        </a>
-    </li>
-</ul>
+<div class="object-tools">
+    {{ block.super }}
+    <ul>
+        <li>
+            <a href="fetch-feeds/" class="button">
+                🔄 Fetch Feeds Now
+            </a>
+        </li>
+    </ul>
+</div>
 {% endblock %}
