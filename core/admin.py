@@ -7,6 +7,7 @@ from django.urls import path
 from django.shortcuts import render, redirect
 from django.contrib import messages
 import os
+from core.utils import fetch_feeds
 from django_ckeditor_5.widgets import CKEditor5Widget
 from .models import Post, Category, Comment, HomepageSection, DownloadQuality, Subtitle, Page, Media , SiteSettings, FeedSource
 
@@ -287,4 +288,28 @@ from .models import FeedSource
 class FeedSourceAdmin(admin.ModelAdmin):
     list_display = ("name", "feed_url", "is_active", "last_fetched")
     list_filter = ("is_active",)
-    search_fields = ("name", "feed_url")
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                "fetch-feeds/",
+                self.admin_site.admin_view(self.fetch_feeds_view),
+                name="fetch-feeds",
+            ),
+        ]
+        return custom_urls + urls
+
+    def fetch_feeds_view(self, request):
+        fetch_feeds()
+        self.message_user(
+            request,
+            "✅ Feeds imported successfully!",
+            messages.SUCCESS,
+        )
+        return redirect("..")
+
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        extra_context["fetch_feeds_button"] = True
+        return super().changelist_view(request, extra_context)
