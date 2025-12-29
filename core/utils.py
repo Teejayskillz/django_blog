@@ -37,7 +37,6 @@ def get_image_from_entry(entry):
 
     return None
 
-
 def fetch_feeds():
     sources = FeedSource.objects.filter(is_active=True)
 
@@ -59,10 +58,14 @@ def fetch_feeds():
             if Post.objects.filter(slug=slug).exists():
                 slug = f"{slug}-{int(timezone.now().timestamp())}"
 
+            # 🔥 SCRAPE FULL CONTENT
+            full_content = scrape_full_article(link)
+            content_to_save = full_content if full_content else entry.get("summary", "")
+
             post = Post.objects.create(
                 title=title,
                 slug=slug,
-                content=entry.get("summary", ""),
+                content=content_to_save,
                 excerpt=entry.get("summary", "")[:300],
                 category=source.default_category,
                 is_external=True,
@@ -92,3 +95,60 @@ def download_image(post, image_url):
             )
     except Exception as e:
         print("Image download failed:", e)
+
+
+def scrape_full_article(url):
+    try:
+        headers = {
+            "User-Agent": "Mozilla/5.0 (compatible; FeedBot/1.0)"
+        }
+        response = requests.get(url, headers=headers, timeout=15)
+        if response.status_code != 200:
+            return None
+
+        soup = BeautifulSoup(response.text, "html.parser")
+
+        # TRY COMMON CONTENT CONTAINERS (WordPress movie sites)
+        selectors = [
+            "div.entry-content",
+            "div.post-content",
+            "article",
+            "div.content",
+            "div.td-post-content"
+        ]
+
+        content_div = None
+        for selector in selectors:
+            content_div = soup.select_one(selector)
+            if content_div:
+                break
+
+        if not content_div:
+            return None
+
+        # REMOVE UNWANTED ELEMENTS
+        for tag in content_div.find_all([
+            "script", "style", "iframe", "form",
+            "ins", "aside"
+        ]):
+            tag.decompose()
+
+        content_html = str(content_div)
+
+        # CLEAN COMMON FOOTERS
+        blacklist_phrases = [
+            "The post",
+            "first appeared on",
+            "RELATED POST",
+            "Source:"
+        ]
+
+        for phrase in blacklist_phrases:
+            if phrase in content_html:
+                content_html = content_html.split(phrase)[0]
+
+        return content_html.strip()
+
+    except Exception as e:
+        print("Article scrape failed:", e)
+        return None
