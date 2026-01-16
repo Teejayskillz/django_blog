@@ -126,11 +126,11 @@ def paragraph_score(text):
 
     return score
 
-
 def extract_article_body(container):
     collecting = False
-    article_html = ""
+    article_parts = []
     confidence = 0
+    negative_hits = 0
 
     for tag in container.find_all(["p", "h2", "h3", "blockquote"], recursive=True):
         text = tag.get_text(strip=True)
@@ -139,19 +139,23 @@ def extract_article_body(container):
 
         score = paragraph_score(text)
 
-        # START article
-        if score >= 2:
+        # START detection
+        if not collecting and score >= 2:
             collecting = True
-            confidence += score
 
         if collecting:
-            # END article
-            if score < -2:
-                break
+            # Count junk only if repeated
+            if score <= -4:
+                negative_hits += 1
+                if negative_hits >= 2:
+                    break
+                continue
 
-            article_html += str(tag)
+            article_parts.append(str(tag))
 
-    return article_html.strip() if len(article_html) > 300 else None
+    html = "".join(article_parts)
+    return html if len(html) > 600 else None
+
 
 
 def rewrite_content(html, max_sentences=6):
