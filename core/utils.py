@@ -96,81 +96,6 @@ def download_image(post, image_url):
     except Exception as e:
         print("Image download failed:", e)
 
-def paragraph_score(text):
-    score = 0
-    length = len(text)
-
-    if length > 120:
-        score += 3
-    elif length > 60:
-        score += 1
-
-    if re.match(r"^[a-z]+ \d{1,2}, \d{4}$", text.lower()):
-        score -= 5
-
-    if text.lower().startswith("by ") and len(text.split()) <= 4:
-        score -= 5
-
-    junk_phrases = [
-        "don't miss",
-        "you may like",
-        "related posts",
-        "breaking:",
-        "read also",
-        "advertisement",
-        "source:"
-    ]
-
-    if any(j in text.lower() for j in junk_phrases):
-        score -= 5
-
-    return score
-
-def extract_article_body(container):
-    collecting = False
-    article_parts = []
-    confidence = 0
-    negative_hits = 0
-
-    for tag in container.find_all(["p", "h2", "h3", "blockquote"], recursive=True):
-        text = tag.get_text(strip=True)
-        if not text:
-            continue
-
-        score = paragraph_score(text)
-
-        # START detection
-        if not collecting and score >= 2:
-            collecting = True
-
-        if collecting:
-            # Count junk only if repeated
-            if score <= -4:
-                negative_hits += 1
-                if negative_hits >= 2:
-                    break
-                continue
-
-            article_parts.append(str(tag))
-
-    html = "".join(article_parts)
-    return html if len(html) > 600 else None
-
-
-
-def rewrite_content(html, max_sentences=6):
-    soup = BeautifulSoup(html, "html.parser")
-    text = soup.get_text(" ", strip=True)
-
-    sentences = re.split(r'(?<=[.!?])\s+', text)
-    if len(sentences) <= max_sentences:
-        return html
-
-    selected = sentences[:max_sentences]
-    rewritten = " ".join(selected)
-
-    return f"<p>{rewritten}</p>"
-
 
 def scrape_full_article(url):
     try:
@@ -183,35 +108,46 @@ def scrape_full_article(url):
 
         soup = BeautifulSoup(response.text, "html.parser")
 
+        # TRY COMMON CONTENT CONTAINERS (WordPress movie sites)
         selectors = [
             "div.entry-content",
             "div.post-content",
-            "div.td-post-content",
-            "article"
+            "article",
+            "div.content",
+            "div.td-post-content"
         ]
 
-        container = None
+        content_div = None
         for selector in selectors:
-            container = soup.select_one(selector)
-            if container:
+            content_div = soup.select_one(selector)
+            if content_div:
                 break
 
-        if not container:
+        if not content_div:
             return None
 
-        # REMOVE obvious junk containers
-        for tag in container.find_all([
-            "time", "header", "footer", "nav",
-            "aside", "script", "style", "iframe"
+        # REMOVE UNWANTED ELEMENTS
+        for tag in content_div.find_all([
+            "script", "style", "iframe", "form",
+            "ins", "aside"
         ]):
             tag.decompose()
 
-        raw_html = extract_article_body(container)
-        if not raw_html:
-            return None
+        content_html = str(content_div)
 
-        # SAFE REWRITE
-        return rewrite_content(raw_html)
+        # CLEAN COMMON FOOTERS
+        blacklist_phrases = [
+            "The post",
+            "first appeared on",
+            "RELATED POST",
+            "Source:"
+        ]
+
+        for phrase in blacklist_phrases:
+            if phrase in content_html:
+                content_html = content_html.split(phrase)[0]
+
+        return content_html.strip()
 
     except Exception as e:
         print("Article scrape failed:", e)
