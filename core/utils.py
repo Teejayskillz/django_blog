@@ -108,13 +108,11 @@ def scrape_full_article(url):
 
         soup = BeautifulSoup(response.text, "html.parser")
 
-        # TRY COMMON CONTENT CONTAINERS (WordPress movie sites)
         selectors = [
             "div.entry-content",
             "div.post-content",
-            "article",
-            "div.content",
-            "div.td-post-content"
+            "div.td-post-content",
+            "article"
         ]
 
         content_div = None
@@ -126,28 +124,49 @@ def scrape_full_article(url):
         if not content_div:
             return None
 
-        # REMOVE UNWANTED ELEMENTS
+        # ❌ REMOVE UNWANTED TAGS COMPLETELY
         for tag in content_div.find_all([
             "script", "style", "iframe", "form",
-            "ins", "aside"
+            "aside", "nav", "footer", "header", "ins"
         ]):
             tag.decompose()
 
-        content_html = str(content_div)
+        # ❌ REMOVE COMMON AD / AUTHOR / SHARE CLASSES
+        junk_classes = [
+            "ads", "advert", "advertisement",
+            "author", "author-box", "post-author",
+            "share", "social", "related", "tags",
+            "navigation", "breadcrumb", "comments"
+        ]
 
-        # CLEAN COMMON FOOTERS
+        for div in content_div.find_all(True):
+            class_list = " ".join(div.get("class", []))
+            if any(junk in class_list.lower() for junk in junk_classes):
+                div.decompose()
+
+        # ✅ KEEP ONLY REAL CONTENT TAGS
+        allowed_tags = ["p", "h1", "h2", "h3", "h4", "img", "ul", "ol", "li", "blockquote"]
+
+        clean_html = ""
+        for tag in content_div.find_all(allowed_tags, recursive=True):
+            text = tag.get_text(strip=True)
+            if text:
+                clean_html += str(tag)
+
+        # ❌ FINAL TEXT CLEANUP
         blacklist_phrases = [
             "The post",
             "first appeared on",
-            "RELATED POST",
+            "Related Posts",
+            "Read more:",
             "Source:"
         ]
 
         for phrase in blacklist_phrases:
-            if phrase in content_html:
-                content_html = content_html.split(phrase)[0]
+            if phrase.lower() in clean_html.lower():
+                clean_html = clean_html.split(phrase)[0]
 
-        return content_html.strip()
+        return clean_html.strip()
 
     except Exception as e:
         print("Article scrape failed:", e)
