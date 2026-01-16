@@ -115,58 +115,58 @@ def scrape_full_article(url):
             "article"
         ]
 
-        content_div = None
+        container = None
         for selector in selectors:
-            content_div = soup.select_one(selector)
-            if content_div:
+            container = soup.select_one(selector)
+            if container:
                 break
 
-        if not content_div:
+        if not container:
             return None
 
-        # ❌ REMOVE UNWANTED TAGS COMPLETELY
-        for tag in content_div.find_all([
-            "script", "style", "iframe", "form",
-            "aside", "nav", "footer", "header", "ins"
+        # ❌ REMOVE META INFO (DATE, AUTHOR, SHARE, ADS)
+        for tag in container.find_all([
+            "time", "header", "footer", "nav",
+            "aside", "script", "style", "iframe"
         ]):
             tag.decompose()
 
-        # ❌ REMOVE COMMON AD / AUTHOR / SHARE CLASSES
-        junk_classes = [
-            "ads", "advert", "advertisement",
-            "author", "author-box", "post-author",
-            "share", "social", "related", "tags",
-            "navigation", "breadcrumb", "comments"
+        # ❌ REMOVE COMMON META CLASSES
+        meta_keywords = [
+            "author", "byline", "date", "time",
+            "share", "social", "ads", "advert",
+            "related", "recommend", "breadcrumb"
         ]
 
-        for div in content_div.find_all(True):
-            class_list = " ".join(div.get("class", []))
-            if any(junk in class_list.lower() for junk in junk_classes):
-                div.decompose()
+        for el in container.find_all(True):
+            classes = " ".join(el.get("class", [])).lower()
+            if any(word in classes for word in meta_keywords):
+                el.decompose()
 
-        # ✅ KEEP ONLY REAL CONTENT TAGS
-        allowed_tags = ["p", "h1", "h2", "h3", "h4", "img", "ul", "ol", "li", "blockquote"]
+        # ✅ EXTRACT ONLY REAL ARTICLE TEXT
+        article_html = ""
+        stop_phrases = [
+            "don't miss",
+            "you may like",
+            "related posts",
+            "breaking:",
+            "read also",
+            "source:"
+        ]
 
-        clean_html = ""
-        for tag in content_div.find_all(allowed_tags, recursive=True):
+        for tag in container.find_all(["p", "h2", "h3", "blockquote"], recursive=True):
             text = tag.get_text(strip=True)
-            if text:
-                clean_html += str(tag)
 
-        # ❌ FINAL TEXT CLEANUP
-        blacklist_phrases = [
-            "The post",
-            "first appeared on",
-            "Related Posts",
-            "Read more:",
-            "Source:"
-        ]
+            if not text:
+                continue
 
-        for phrase in blacklist_phrases:
-            if phrase.lower() in clean_html.lower():
-                clean_html = clean_html.split(phrase)[0]
+            # 🛑 STOP WHEN ARTICLE ENDS
+            if any(phrase in text.lower() for phrase in stop_phrases):
+                break
 
-        return clean_html.strip()
+            article_html += str(tag)
+
+        return article_html.strip()
 
     except Exception as e:
         print("Article scrape failed:", e)
