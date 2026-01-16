@@ -96,6 +96,77 @@ def download_image(post, image_url):
     except Exception as e:
         print("Image download failed:", e)
 
+def paragraph_score(text):
+    score = 0
+    length = len(text)
+
+    if length > 120:
+        score += 3
+    elif length > 60:
+        score += 1
+
+    if re.match(r"^[a-z]+ \d{1,2}, \d{4}$", text.lower()):
+        score -= 5
+
+    if text.lower().startswith("by ") and len(text.split()) <= 4:
+        score -= 5
+
+    junk_phrases = [
+        "don't miss",
+        "you may like",
+        "related posts",
+        "breaking:",
+        "read also",
+        "advertisement",
+        "source:"
+    ]
+
+    if any(j in text.lower() for j in junk_phrases):
+        score -= 5
+
+    return score
+
+
+def extract_article_body(container):
+    collecting = False
+    article_html = ""
+    confidence = 0
+
+    for tag in container.find_all(["p", "h2", "h3", "blockquote"], recursive=True):
+        text = tag.get_text(strip=True)
+        if not text:
+            continue
+
+        score = paragraph_score(text)
+
+        # START article
+        if score >= 2:
+            collecting = True
+            confidence += score
+
+        if collecting:
+            # END article
+            if score < -2:
+                break
+
+            article_html += str(tag)
+
+    return article_html.strip() if len(article_html) > 300 else None
+
+
+def rewrite_content(html, max_sentences=6):
+    soup = BeautifulSoup(html, "html.parser")
+    text = soup.get_text(" ", strip=True)
+
+    sentences = re.split(r'(?<=[.!?])\s+', text)
+    if len(sentences) <= max_sentences:
+        return html
+
+    selected = sentences[:max_sentences]
+    rewritten = " ".join(selected)
+
+    return f"<p>{rewritten}</p>"
+
 
 def scrape_full_article(url):
     try:
@@ -124,49 +195,19 @@ def scrape_full_article(url):
         if not container:
             return None
 
-        # ❌ REMOVE META INFO (DATE, AUTHOR, SHARE, ADS)
+        # REMOVE obvious junk containers
         for tag in container.find_all([
             "time", "header", "footer", "nav",
             "aside", "script", "style", "iframe"
         ]):
             tag.decompose()
 
-        # ❌ REMOVE COMMON META CLASSES
-        meta_keywords = [
-            "author", "byline", "date", "time",
-            "share", "social", "ads", "advert",
-            "related", "recommend", "breadcrumb"
-        ]
+        raw_html = extract_article_body(container)
+        if not raw_html:
+            return None
 
-        for el in container.find_all(True):
-            classes = " ".join(el.get("class", [])).lower()
-            if any(word in classes for word in meta_keywords):
-                el.decompose()
-
-        # ✅ EXTRACT ONLY REAL ARTICLE TEXT
-        article_html = ""
-        stop_phrases = [
-            "don't miss",
-            "you may like",
-            "related posts",
-            "breaking:",
-            "read also",
-            "source:"
-        ]
-
-        for tag in container.find_all(["p", "h2", "h3", "blockquote"], recursive=True):
-            text = tag.get_text(strip=True)
-
-            if not text:
-                continue
-
-            # 🛑 STOP WHEN ARTICLE ENDS
-            if any(phrase in text.lower() for phrase in stop_phrases):
-                break
-
-            article_html += str(tag)
-
-        return article_html.strip()
+        # SAFE REWRITE
+        return rewrite_content(raw_html)
 
     except Exception as e:
         print("Article scrape failed:", e)
