@@ -7,7 +7,7 @@ from django.urls import path
 from django.shortcuts import render, redirect
 from django.contrib import messages
 import os
-from core.utils import fetch_feeds
+#from core.utils import fetch_feeds
 from django_ckeditor_5.widgets import CKEditor5Widget
 from .models import Post, Category, Comment, HomepageSection, DownloadQuality, Subtitle, Page, Media , SiteSettings, FeedSource
 
