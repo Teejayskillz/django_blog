@@ -366,17 +366,17 @@ class Media(models.Model):
         # No need for a final super().save(*args, **kwargs) outside, as we either call it with update_fields
         # or the initial super().save() was sufficient.
 
-class FeedSource(models.Model):
-    name = models.CharField(max_length=200)
-    feed_url = models.URLField(unique=True)
-    default_category = models.ForeignKey(
-        "core.Category",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True
-    )
-    is_active = models.BooleanField(default=True)
-    last_fetched = models.DateTimeField(null=True, blank=True)
+# class FeedSource(models.Model):
+#     name = models.CharField(max_length=200)
+#     feed_url = models.URLField(unique=True)
+#     default_category = models.ForeignKey(
+#         "core.Category",
+#         on_delete=models.SET_NULL,
+#         null=True,
+#         blank=True
+#     )
+#     is_active = models.BooleanField(default=True)
+#     last_fetched = models.DateTimeField(null=True, blank=True)
 
-    def __str__(self):
-        return self.name
+#     def __str__(self):
+#         return self.name

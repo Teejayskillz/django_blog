@@ -282,34 +282,34 @@ class SiteSettingsAdmin(admin.ModelAdmin):
     fields = ['site_title', 'site_name']
 
 
-from .models import FeedSource
+# from .models import FeedSource
 
-@admin.register(FeedSource)
-class FeedSourceAdmin(admin.ModelAdmin):
-    list_display = ("name", "feed_url", "is_active", "last_fetched")
-    list_filter = ("is_active",)
+# @admin.register(FeedSource)
+# class FeedSourceAdmin(admin.ModelAdmin):
+#     list_display = ("name", "feed_url", "is_active", "last_fetched")
+#     list_filter = ("is_active",)
 
-    def get_urls(self):
-        urls = super().get_urls()
-        custom_urls = [
-            path(
-                "fetch-feeds/",
-                self.admin_site.admin_view(self.fetch_feeds_view),
-                name="fetch-feeds",
-            ),
-        ]
-        return custom_urls + urls
+#     def get_urls(self):
+#         urls = super().get_urls()
+#         custom_urls = [
+#             path(
+#                 "fetch-feeds/",
+#                 self.admin_site.admin_view(self.fetch_feeds_view),
+#                 name="fetch-feeds",
+#             ),
+#         ]
+#         return custom_urls + urls
 
-    def fetch_feeds_view(self, request):
-        fetch_feeds()
-        self.message_user(
-            request,
-            "✅ Feeds imported successfully!",
-            messages.SUCCESS,
-        )
-        return redirect("..")
+#     def fetch_feeds_view(self, request):
+#         fetch_feeds()
+#         self.message_user(
+#             request,
+#             "✅ Feeds imported successfully!",
+#             messages.SUCCESS,
+#         )
+#         return redirect("..")
 
-    def changelist_view(self, request, extra_context=None):
-        extra_context = extra_context or {}
-        extra_context["fetch_feeds_button"] = True
-        return super().changelist_view(request, extra_context)
+#     def changelist_view(self, request, extra_context=None):
+#         extra_context = extra_context or {}
+#         extra_context["fetch_feeds_button"] = True
+#         return super().changelist_view(request, extra_context)
