@@ -111,13 +111,13 @@ class Post(models.Model):
     published_date = models.DateTimeField(auto_now_add=True)
     is_published = models.BooleanField(default=True)
 
-    source = models.ForeignKey(
-        "core.FeedSource",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True
-    )
-    source_url = models.URLField(blank=True, null=True)
+    # source = models.ForeignKey(
+    #     "core.FeedSource",
+    #     on_delete=models.SET_NULL,
+    #     null=True,
+    #     blank=True
+    # )
+    # source_url = models.URLField(blank=True, null=True)
     is_external = models.BooleanField(default=False)
 
 
