@@ -695,46 +695,6 @@
             {% include 'core/includes/footer.html' %}
         </div>
     </div>
-    <script>
-(function() {
-  const POPUNDER_URL = 'https://otieu.com/4/9394021';
-  const THROTTLE_KEY = 'popunderLastShown';
-  const THROTTLE_DELAY = 60 * 60 * 1000; // 1 hour in milliseconds
-
-  function shouldAllowPopunder() {
-    const lastShown = localStorage.getItem(THROTTLE_KEY);
-    if (!lastShown) return true;
-    const elapsed = Date.now() - parseInt(lastShown, 10);
-    return elapsed >= THROTTLE_DELAY;
-  }
-
-  function openPopunder() {
-    if (!shouldAllowPopunder()) return;
-
-    const pu = window.open(POPUNDER_URL, '_blank', 'width=1,height=1,left=0,top=0,scrollbars=0');
-    if (pu) {
-      pu.blur();
-      window.focus();
-      try { pu.opener = null; } catch (e) {}
-      localStorage.setItem(THROTTLE_KEY, Date.now().toString());
-    }
-  }
-
-  // Attach to all link clicks using event delegation
-  document.addEventListener('click', function(e) {
-    let el = e.target;
-    while (el && el.nodeName !== 'A') {
-      el = el.parentElement;
-    }
-    if (el && el.href) {
-      // Only trigger if it's a real navigation click (not just # or javascript:)
-      if (el.href && !el.href.startsWith('#') && !el.href.toLowerCase().startsWith('javascript:')) {
-        setTimeout(openPopunder, 100);
-      }
-    }
-  }, true);
-})();
-</script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
 </body>
