@@ -72,7 +72,7 @@ def auto_post_to_telegram(sender, instance, **kwargs):
         
         # --- ADDING WHATSAPP LINK BELOW POST URL ---
         # Added two newlines (\n\n) for spacing between the post link and the WhatsApp info
-      #  caption_text += f"\n\nJOIN OUR WHATSAPP MOVIE GROUP\n{escaped_whatsapp_channel_url}"
+        caption_text += f"\n\nJOIN OUR GROUP\n{escaped_whatsapp_channel_url}"
 
         async def send_telegram_message_async():
             for chat_id in channel_ids:
