@@ -61,7 +61,7 @@ def auto_post_to_telegram(sender, instance, **kwargs):
         escaped_excerpt_or_content = escape_markdown(content_for_message, version=2)
 
         # --- WhatsApp Channel Information ---
-        whatsapp_channel_url = "https://whatsapp.com/channel/0029VaZdUiBEAKWIhQCJTg1d"
+        whatsapp_channel_url = "https://chat.whatsapp.com/LgQjR9PXwdlGynUYZTpMCq?mode=gi_t"
         # Escape the WhatsApp URL as it will be displayed directly and contains dots
         escaped_whatsapp_channel_url = escape_markdown(whatsapp_channel_url, version=2)
 
@@ -72,7 +72,7 @@ def auto_post_to_telegram(sender, instance, **kwargs):
         
         # --- ADDING WHATSAPP LINK BELOW POST URL ---
         # Added two newlines (\n\n) for spacing between the post link and the WhatsApp info
-        caption_text += f"\n\nJOIN OUR WHATSAPP MOVIE GROUP\n{escaped_whatsapp_channel_url}"
+      #  caption_text += f"\n\nJOIN OUR WHATSAPP MOVIE GROUP\n{escaped_whatsapp_channel_url}"
 
         async def send_telegram_message_async():
             for chat_id in channel_ids:
