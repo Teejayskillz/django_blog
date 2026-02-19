@@ -2,8 +2,7 @@ import feedparser
 from django.utils import timezone
 from django.utils.text import slugify
 from core.models import Post
-#from core.models import FeedSource
-
+from core.models import FeedSource
 import requests
 from django.core.files.base import ContentFile
 from bs4 import BeautifulSoup
