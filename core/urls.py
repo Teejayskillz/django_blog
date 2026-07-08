@@ -19,10 +19,10 @@ urlpatterns = [
         query_string=True
     )),
 
-    # ✅ CORRECTED: Use <str:slug> for pages too
+    # CORRECTED: Use <str:slug> for pages too
     path('<str:slug>/', PageView, name='page_view'),
 
-    # ✅ This pattern is good, but let's make the post slug flexible too
+    #This pattern is good, but let's make the post slug flexible too
     path('<str:category>/<str:slug>/', PostDetailView.as_view(), name='post_detail'),
 
     path('media/', MediaListView.as_view(), name='media_list'),
