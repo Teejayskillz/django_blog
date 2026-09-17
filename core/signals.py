@@ -67,7 +67,7 @@ def auto_post_to_telegram(sender, instance, **kwargs):
 
         # --- CONSTRUCT CAPTION TEXT ---
         caption_text = f"📢 **{escaped_title}**\n\n"
-       # caption_text += f"{escaped_excerpt_or_content}\n\n"
+        caption_text += f"{escaped_excerpt_or_content}\n\n"
         caption_text += f"{escaped_post_url}"
         
         # --- ADDING WHATSAPP LINK BELOW POST URL ---
