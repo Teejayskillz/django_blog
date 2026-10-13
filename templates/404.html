@@ -1,0 +1,13 @@
+{% extends "core/base.html" %}
+
+{% block title %}Page not found{% endblock %}
+
+{% block content %}
+<div class="custom-container main-wrapper" style="padding:40px; text-align:center;">
+    <h1 style="font-size:3rem; margin-bottom:0.5rem;">404 — Page not found</h1>
+    <p style="color:var(--text-muted); margin-bottom:1.5rem;">Sorry, the page you were looking for doesn't exist or has been moved.</p>
+    <p>
+        <a class="btn btn-primary" href="{% url 'home' %}">Return to home</a>
+    </p>
+</div>
+{% endblock %}

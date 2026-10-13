@@ -353,3 +353,8 @@ def sitemap_stylesheet(request):
     document_root = settings.STATICFILES_DIRS[0]
     
     return serve(request, 'sitemap.xsl', document_root=document_root, show_indexes=False)
+
+
+def custom_404(request, exception):
+    """Custom 404 handler that renders templates/404.html with status 404."""
+    return render(request, '404.html', status=404)
