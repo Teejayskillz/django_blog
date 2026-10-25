@@ -1,65 +1,75 @@
 {% load static %}
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>
-    {% block title %}
+    <title>
+        {% block title %}
         {{ post.get_page_title|default:site_settings.site_title }}
-    {% endblock %} - {{ site_settings.site_name }}
-</title>
-    <meta name="description" content="{% block meta_description %}{{ post.excerpt|default:'Stream and download the latest Nollywood, Hollywood, and Bollywood movies and TV shows on Hypeblog9jaTV. Get movie reviews, trailers, and more.' }}{% endblock %}">
-<meta name="google-site-verification" content="SGtVRzP2pdXse4JOPMBc0B6cBd-NvaDH5bFQwdI0jQU" />
+        {% endblock %} - {{ site_settings.site_name }}
+    </title>
+    <meta name="description"
+        content="{% block meta_description %}{{ post.excerpt|default:'Stream and download the latest Nollywood, Hollywood, and Bollywood movies and TV shows on Hypeblog9jaTV. Get movie reviews, trailers, and more.' }}{% endblock %}">
+    <meta name="google-site-verification" content="SGtVRzP2pdXse4JOPMBc0B6cBd-NvaDH5bFQwdI0jQU" />
 
     {# Open Graph Tags (for Facebook, WhatsApp, LinkedIn) #}
-    <meta property="og:locale" content="en_US"/>
-    <meta property="og:site_name" content="Hypeblog9jaTV"/>
-    <meta property="og:title" content="{% block og_title %}{{ post.get_page_title|default:'Watch Latest Movies & TV Shows' }}{% endblock %} - Hypeblog9jaTV">
-    
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:site_name" content="Hypeblog9jaTV" />
+    <meta property="og:title"
+        content="{% block og_title %}{{ post.get_page_title|default:'Watch Latest Movies & TV Shows' }}{% endblock %} - Hypeblog9jaTV">
+
     {# Use the pre-calculated absolute URL from the view #}
     <meta property="og:url" content="{{ post_absolute_url }}">
-    
+
     <meta property="og:type" content="article">
-    <meta property="og:description" content="{% block og_description %}{{ post.excerpt|default:'Stream and download the latest Nollywood, Hollywood, and Bollywood movies and TV Shows on Hypeblog9jaTV.' }}{% endblock %}">
-    
+    <meta property="og:description"
+        content="{% block og_description %}{{ post.excerpt|default:'Stream and download the latest Nollywood, Hollywood, and Bollywood movies and TV Shows on Hypeblog9jaTV.' }}{% endblock %}">
+
     {# Use the pre-calculated absolute URL for thumbnail #}
     <meta property="og:image" content="{{ thumbnail_absolute_url }}">
     <meta property="og:image:url" content="{{ thumbnail_absolute_url }}">
     <meta property="og:image:secure_url" content="{{ thumbnail_absolute_url }}">
-    
+
     {% if post.thumbnail %}
-        {# If you have width/height stored in your model, use them here #}
-        <meta property="og:image:width" content="1200">
-        <meta property="og:image:height" content="630">
+    {# If you have width/height stored in your model, use them here #}
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
     {% endif %}
 
-    {% if post.published_date %}<meta property="article:published_time" content="{{ post.published_date|date:'c' }}"/>{% endif %}
-    {% if post.published_date %}<meta property="article:modified_time" content="{{ post.published_date|date:'c' }}" />{% endif %}
-    {% if post.published_date %}<meta property="og:updated_time" content="{{ post.published_date|date:'c' }}" />{% endif %}
-    {% if post.category %}<meta property="article:section" content="{{ post.category.name }}" />{% endif %}
+    {% if post.published_date %}
+    <meta property="article:published_time" content="{{ post.published_date|date:'c' }}" />{% endif %}
+    {% if post.published_date %}
+    <meta property="article:modified_time" content="{{ post.published_date|date:'c' }}" />{% endif %}
+    {% if post.published_date %}
+    <meta property="og:updated_time" content="{{ post.published_date|date:'c' }}" />{% endif %}
+    {% if post.category %}
+    <meta property="article:section" content="{{ post.category.name }}" />{% endif %}
 
     {# Twitter Card Tags #}
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{% block twitter_title %}{{ post.get_page_title|default:'Watch Latest Movies & TV Shows' }}{% endblock %} - Hypeblog9jaTV">
+    <meta name="twitter:title"
+        content="{% block twitter_title %}{{ post.get_page_title|default:'Watch Latest Movies & TV Shows' }}{% endblock %} - Hypeblog9jaTV">
     {# Use the pre-calculated absolute URL #}
     <meta name="twitter:url" content="{{ post_absolute_url }}">
-    <meta name="twitter:description" content="{% block twitter_description %}{{ post.excerpt|default:'Stream and download the latest Nollywood, Hollywood, and Bollywood movies and TV Shows on Hypeblog9jaTV.' }}{% endblock %}">
-    
+    <meta name="twitter:description"
+        content="{% block twitter_description %}{{ post.excerpt|default:'Stream and download the latest Nollywood, Hollywood, and Bollywood movies and TV Shows on Hypeblog9jaTV.' }}{% endblock %}">
+
     {# Use the pre-calculated absolute URL for thumbnail #}
     <meta name="twitter:image" content="{{ thumbnail_absolute_url }}">
-    
+
     <meta name="twitter:site" content="@Hypeblog9jaTV">
-    <meta name="twitter:creator" content="@YourCreatorHandle">
+    <meta name="twitter:creator" content="@Hypeblog9jaTV">
 
     {% if page_obj.has_previous %}
     <link rel="prev" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">
-{% endif %}
-{% if page_obj.has_next %}
+    {% endif %}
+    {% if page_obj.has_next %}
     <link rel="next" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}">
-{% endif %}
+    {% endif %}
+    <script src="https://5gvci.com/act/files/tag.min.js?z=12117253" data-cfasync="false" async></script>
 
-    
     {# Canonical URL - Use the pre-calculated absolute URL #}
     <link rel="canonical" href="{{ post_absolute_url }}" />
     {# Your favicon links will now correctly point to: /static/images/favicon.ico #}
@@ -70,29 +80,39 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <meta name="google-site-verification" content="2Ji2fIGZwORrvfCIl1n-e7YKt4PssE7dzk7tqFK16IA" />
-    
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-3QKYHLCB32"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
 
-  gtag('config', 'G-3QKYHLCB32');
-</script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-3QKYHLCB32"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-3QKYHLCB32');
+    </script>
     <style>
         :root {
             /* White Theme Colors */
-            --light-bg: #f5f5f5; /* Light background for body */
-            --lighter-bg: #ffffff; /* Even lighter for cards/sections */
+            --light-bg: #f5f5f5;
+            /* Light background for body */
+            --lighter-bg: #ffffff;
+            /* Even lighter for cards/sections */
             --card-bg: #ffffff;
-            --primary: #e50914; /* Netflix Red */
-            --primary-hover: #f40612; /* Slightly brighter red */
-            --text: #333333; /* Dark text for readability */
-            --text-muted: #666666; /* Muted dark text */
-            --text-dim: #999999; /* Even dimmer text */
-            --border-color: #e0e0e0; /* Light border */
-            --shadow: rgba(0, 0, 0, 0.1); /* Lighter shadow */
-            --glow: rgba(229, 9, 20, 0.15); /* Lighter red glow */
+            --primary: #e50914;
+            /* Netflix Red */
+            --primary-hover: #f40612;
+            /* Slightly brighter red */
+            --text: #333333;
+            /* Dark text for readability */
+            --text-muted: #666666;
+            /* Muted dark text */
+            --text-dim: #999999;
+            /* Even dimmer text */
+            --border-color: #e0e0e0;
+            /* Light border */
+            --shadow: rgba(0, 0, 0, 0.1);
+            /* Lighter shadow */
+            --glow: rgba(229, 9, 20, 0.15);
+            /* Lighter red glow */
         }
 
         * {
@@ -100,7 +120,7 @@
         }
 
         body {
-            background-color: var(--light-bg); 
+            background-color: var(--light-bg);
             color: var(--text);
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             line-height: 1.6;
@@ -117,13 +137,14 @@
 
         a:hover {
             color: var(--primary-hover);
-            text-shadow: 0 0 3px rgba(229, 9, 20, 0.2); 
+            text-shadow: 0 0 3px rgba(229, 9, 20, 0.2);
         }
 
         /* --- MODIFIED LAYOUT CSS START --- */
         /* Custom Container - Now acts more like a wider Bootstrap container */
         .custom-container {
-            max-width: 1400px; /* Set a wider max-width for larger screens */
+            max-width: 1400px;
+            /* Set a wider max-width for larger screens */
             width: 100%;
             margin: 0 auto;
             /* No padding here, main-wrapper will handle it */
@@ -131,50 +152,61 @@
 
         /* Main Wrapper - Handles the boxed effect and responsive padding */
         .main-wrapper {
-            background: var(--lighter-bg); 
+            background: var(--lighter-bg);
             border-radius: 15px;
             border: 1px solid var(--border-color);
-            margin: 20px auto; /* Default margin for desktop */
+            margin: 20px auto;
+            /* Default margin for desktop */
             overflow: hidden;
-            box-shadow: 0 10px 20px var(--shadow); /* Lighter shadow */
+            box-shadow: 0 10px 20px var(--shadow);
+            /* Lighter shadow */
             /* Removed will-change for transform - use only for explicit animations */
         }
 
         /* Responsive padding for main-wrapper */
-        .main-wrapper > *:not(.ad-section) { /* Apply padding to direct children except ad-section */
+        .main-wrapper>*:not(.ad-section) {
+            /* Apply padding to direct children except ad-section */
             padding-left: 20px;
             padding-right: 20px;
         }
 
         /* Responsive padding for main-wrapper children on small screens */
-        @media (max-width: 767.98px) { /* Adjust for smaller screens (mobile, small tablets) */
+        @media (max-width: 767.98px) {
+
+            /* Adjust for smaller screens (mobile, small tablets) */
             .main-wrapper {
-                margin: 10px auto; /* Smaller margin on mobile */
-                border-radius: 10px; /* Slightly smaller border-radius */
+                margin: 10px auto;
+                /* Smaller margin on mobile */
+                border-radius: 10px;
+                /* Slightly smaller border-radius */
             }
-            .main-wrapper > *:not(.ad-section) {
-                padding-left: 15px; /* Reduce padding on smaller screens */
+
+            .main-wrapper>*:not(.ad-section) {
+                padding-left: 15px;
+                /* Reduce padding on smaller screens */
                 padding-right: 15px;
             }
         }
+
         /* --- MODIFIED LAYOUT CSS END --- */
 
 
         /* Ad Section - More compact */
         .ad-section {
-            background: var(--lighter-bg); 
+            background: var(--lighter-bg);
             border-bottom: 1px solid var(--border-color);
-            padding: 15px 20px; /* Keep consistent padding here, or adjust as needed */
+            padding: 15px 20px;
+            /* Keep consistent padding here, or adjust as needed */
             text-align: center;
         }
 
         /* Header and Footer styling within the wrapper */
-        .main-wrapper > *:first-child {
+        .main-wrapper>*:first-child {
             border-top-left-radius: 15px;
             border-top-right-radius: 15px;
         }
 
-        .main-wrapper > *:last-child {
+        .main-wrapper>*:last-child {
             border-bottom-left-radius: 15px;
             border-bottom-right-radius: 15px;
         }
@@ -182,9 +214,11 @@
         /* Ensure header and footer have proper background and spacing */
         .main-wrapper header,
         .main-wrapper footer {
-            background: var(--lighter-bg); /* Match main-wrapper background */
+            background: var(--lighter-bg);
+            /* Match main-wrapper background */
             border-bottom: 1px solid var(--border-color);
-            padding-top: 15px; /* Keep padding here, adjusted for new wrapper padding */
+            padding-top: 15px;
+            /* Keep padding here, adjusted for new wrapper padding */
             padding-bottom: 15px;
         }
 
@@ -199,7 +233,8 @@
             justify-content: center;
             align-items: center;
             margin: 8px 0;
-            background-color: var(--light-bg); /* Add a subtle background to ad containers */
+            background-color: var(--light-bg);
+            /* Add a subtle background to ad containers */
             border-radius: 8px;
             padding: 5px;
         }
@@ -222,8 +257,8 @@
             position: relative;
             text-transform: uppercase;
             letter-spacing: 1px;
-            box-shadow: 0 4px 10px var(--glow); 
-            will-change: transform; 
+            box-shadow: 0 4px 10px var(--glow);
+            will-change: transform;
         }
 
         .category-header::before {
@@ -233,26 +268,26 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
             border-radius: 25px;
         }
 
         /* Post Cards - Compact and Sleek */
         .post-card {
-            background: var(--card-bg); 
+            background: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 12px;
             overflow: hidden;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             height: 100%;
             position: relative;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08); 
-            will-change: transform, box-shadow, border-color; 
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            will-change: transform, box-shadow, border-color;
         }
 
         .post-card:hover {
-            transform: translateY(-5px) scale(1.01); 
-            box-shadow: 0 15px 30px var(--shadow), 0 0 15px var(--glow); 
+            transform: translateY(-5px) scale(1.01);
+            box-shadow: 0 15px 30px var(--shadow), 0 0 15px var(--glow);
             border-color: var(--primary);
         }
 
@@ -262,7 +297,7 @@
             padding-bottom: 60%;
             position: relative;
             overflow: hidden;
-            background: var(--light-bg); 
+            background: var(--light-bg);
         }
 
         .post-card-img-container img {
@@ -276,7 +311,7 @@
         }
 
         .post-card:hover .post-card-img-container img {
-            transform: scale(1.05); 
+            transform: scale(1.05);
         }
 
         /* Overlay gradient - Adjusted for white theme */
@@ -287,7 +322,7 @@
             left: 0;
             right: 0;
             height: 50%;
-            background: linear-gradient(transparent, rgba(255,255,255,0.8)); 
+            background: linear-gradient(transparent, rgba(255, 255, 255, 0.8));
             pointer-events: none;
         }
 
@@ -300,7 +335,7 @@
         .post-card h3 {
             font-size: 0.9rem;
             font-weight: 600;
-            color: var(--text); 
+            color: var(--text);
             margin-bottom: 8px;
             line-height: 1.3;
             overflow: hidden;
@@ -328,19 +363,19 @@
 
         /* Sidebar - More compact */
         .sidebar-section {
-            background: var(--card-bg); 
+            background: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 15px;
             margin-bottom: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08); 
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
             transition: all 0.3s ease;
-            will-change: transform, box-shadow, border-color; 
+            will-change: transform, box-shadow, border-color;
         }
 
         .sidebar-section:hover {
             border-color: var(--primary);
-            box-shadow: 0 8px 20px var(--shadow); 
+            box-shadow: 0 8px 20px var(--shadow);
         }
 
         .sidebar-section h4 {
@@ -365,7 +400,7 @@
         }
 
         .sidebar-list-item:hover {
-            background: var(--light-bg); 
+            background: var(--light-bg);
             transform: translateX(5px);
         }
 
@@ -379,7 +414,7 @@
         }
 
         .sidebar-list-item-details a {
-            color: var(--text); 
+            color: var(--text);
             font-size: 0.85rem;
             font-weight: 500;
             line-height: 1.4;
@@ -392,7 +427,7 @@
 
         .sidebar-list-item-details span {
             font-size: 0.7rem;
-            color: var(--text-dim); 
+            color: var(--text-dim);
             margin-top: 2px;
         }
 
@@ -418,20 +453,20 @@
         .trending-buttons .btn-primary {
             background: linear-gradient(45deg, var(--primary), var(--primary-hover));
             border: none;
-            box-shadow: 0 4px 10px var(--glow); 
+            box-shadow: 0 4px 10px var(--glow);
         }
 
         .trending-buttons .btn-secondary {
-            background: var(--light-bg); 
+            background: var(--light-bg);
             border: 1px solid var(--border-color);
-            color: var(--text-muted); 
-            box-shadow: none; 
+            color: var(--text-muted);
+            box-shadow: none;
         }
 
         .trending-buttons .btn-secondary:hover {
-            background: var(--border-color); 
+            background: var(--border-color);
             color: var(--text);
-            transform: translateY(-1px); 
+            transform: translateY(-1px);
         }
 
         /* Popular search styling */
@@ -448,12 +483,12 @@
         }
 
         .popular-search-list li:hover {
-            background: var(--light-bg); 
+            background: var(--light-bg);
             transform: translateX(5px);
         }
 
         .popular-search-list li a {
-            color: var(--text-muted); 
+            color: var(--text-muted);
             font-size: 0.8rem;
         }
 
@@ -463,29 +498,29 @@
                 grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
                 gap: 15px;
             }
-            
+
             .post-card-img-container {
                 padding-bottom: 70%;
             }
-            
+
             .post-card-content {
                 padding: 10px 12px;
             }
-            
+
             .post-card h3 {
                 font-size: 0.8rem;
             }
-            
+
             .sidebar-section {
                 margin-bottom: 15px;
                 padding: 12px;
             }
-            
+
             .sidebar-list-item img {
                 width: 40px;
                 height: 40px;
             }
-            
+
             .category-header {
                 font-size: 1rem;
                 padding: 10px 15px;
@@ -536,21 +571,26 @@
         @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateY(20px); 
+                transform: translateY(20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
 
-        .post-card, .sidebar-section {
-            animation: fadeInUp 0.5s ease-out forwards; 
-            animation-timeline: view(); 
-            animation-range: entry 0% cover 20%; 
+        .post-card,
+        .sidebar-section {
+            animation: fadeInUp 0.5s ease-out forwards;
+            animation-timeline: view();
+            animation-range: entry 0% cover 20%;
         }
+
         @supports not (animation-timeline: view()) {
-            .post-card, .sidebar-section {
+
+            .post-card,
+            .sidebar-section {
                 animation: fadeInUp 0.5s ease-out;
             }
         }
@@ -561,7 +601,7 @@
         }
 
         ::-webkit-scrollbar-track {
-            background: var(--light-bg); 
+            background: var(--light-bg);
         }
 
         ::-webkit-scrollbar-thumb {
@@ -574,13 +614,15 @@
         }
     </style>
 </head>
+
 <body>
     <div class="custom-container">
         <div class="main-wrapper">
             {% include 'core/includes/header.html' %}
-            
+
             <div class="ad-section">
-                <div class="alert alert-warning text-center" style="margin-bottom: 8px; padding: 8px; font-size: 0.8rem;">
+                <div class="alert alert-warning text-center"
+                    style="margin-bottom: 8px; padding: 8px; font-size: 0.8rem;">
                     <strong>NOTICE:</strong> This site uses pop-up ads. Please close unwanted tabs.
                 </div>
 
@@ -589,114 +631,110 @@
                 </div>
 
                 <div class="ad-slot-container">
-                     {{ ads_by_slug.header2|safe }}
+                    {{ ads_by_slug.header2|safe }}
                 </div>
-                
+
             </div>
-            
+
             <div class="content-area">
-                <div class="row"> 
+                <div class="row">
                     <div class="col-lg-8">
                         {% block content %}{% endblock %}
                     </div>
                     <div class="col-lg-4">
                         {% block sidebar %}
-                            <div class="sidebar-section">
-                                <h4><i class="fas fa-ad"></i> Sponsored</h4>
-                                <div class="text-center" style="padding: 30px; border: 2px dashed var(--border-color); border-radius: 8px; color: var(--text-dim); background-color: var(--light-bg);">
-                                   {{ ads_by_slug.sidebar1|safe }}
-                                </div>
+                        <div class="sidebar-section">
+                            <h4><i class="fas fa-ad"></i> Sponsored</h4>
+                            <div class="text-center"
+                                style="padding: 30px; border: 2px dashed var(--border-color); border-radius: 8px; color: var(--text-dim); background-color: var(--light-bg);">
+                                {{ ads_by_slug.sidebar1|safe }}
+                            </div>
+                        </div>
+
+                        <div class="sidebar-section">
+                            <h4><i class="fas fa-fire"></i> Trending</h4>
+                            <div class="trending-buttons">
+                                <a href="?time=24hrs"
+                                    class="btn {% if selected_time_frame == '24hrs' %}btn-primary{% else %}btn-secondary{% endif %}">🔥
+                                    24Hrs</a>
+                                <a href="?time=7days"
+                                    class="btn {% if selected_time_frame == '7days' %}btn-primary{% else %}btn-secondary{% endif %}">⭐
+                                    7Days</a>
                             </div>
 
-                            <div class="sidebar-section">
-                                <h4><i class="fas fa-fire"></i> Trending</h4>
-                                <div class="trending-buttons">
-                                    <a href="?time=24hrs" class="btn {% if selected_time_frame == '24hrs' %}btn-primary{% else %}btn-secondary{% endif %}">🔥 24Hrs</a>
-                                    <a href="?time=7days" class="btn {% if selected_time_frame == '7days' %}btn-primary{% else %}btn-secondary{% endif %}">⭐ 7Days</a>
-                                </div>
-
-                                <div class="list-unstyled">
-                                    {% for post in trending_posts %}
-                                    <div class="sidebar-list-item">
-                                        {% if post.thumbnail %}
-                                            <img src="{{ post.thumbnail.url }}"
-                                                 alt="{{ post.title }}"
-                                                 width="100" height="100"
-                                                 style="object-fit: cover; border-radius: 5px;"
-                                                 loading="lazy">
-                                        {% else %}
-                                            <img src="{% static 'images/default_thumbnail.jpg' %}" {# Corrected static path for consistency #}
-                                                 alt="No Image"
-                                                 width="100" height="100"
-                                                 style="object-fit: cover; border-radius: 5px;"
-                                                 loading="lazy">
-                                        {% endif %}
-                                        <div class="sidebar-list-item-details">
-                                            <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
-                                            <span>{{ post.published_date|date:"M d, Y" }}</span>
-                                        </div>
+                            <div class="list-unstyled">
+                                {% for post in trending_posts %}
+                                <div class="sidebar-list-item">
+                                    {% if post.thumbnail %}
+                                    <img src="{{ post.thumbnail.url }}" alt="{{ post.title }}" width="100" height="100"
+                                        style="object-fit: cover; border-radius: 5px;" loading="lazy">
+                                    {% else %}
+                                    <img src="{% static 'images/default_thumbnail.jpg' %}" {# Corrected static path for
+                                        consistency #} alt="No Image" width="100" height="100"
+                                        style="object-fit: cover; border-radius: 5px;" loading="lazy">
+                                    {% endif %}
+                                    <div class="sidebar-list-item-details">
+                                        <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+                                        <span>{{ post.published_date|date:"M d, Y" }}</span>
                                     </div>
-                                    {% empty %}
-                                    <p style="color: var(--text-dim);">No trending posts available for this period.</p>
-                                    {% endfor %}
                                 </div>
+                                {% empty %}
+                                <p style="color: var(--text-dim);">No trending posts available for this period.</p>
+                                {% endfor %}
                             </div>
+                        </div>
 
-                            <div class="sidebar-section">
-                                <h4><i class="fas fa-clock"></i> Recent</h4>
-                                <div class="trending-buttons">
-                                    <button class="btn btn-primary">All</button>
-                                </div>
-                                <div class="list-unstyled">
-                                    {% for post in recent_posts %}
-                                    <div class="sidebar-list-item">
-                                        {% if post.thumbnail %}
-                                            <img src="{{ post.thumbnail.url }}"
-                                                 alt="{{ post.title }}"
-                                                 width="100" height="100"
-                                                 style="object-fit: cover; border-radius: 5px;"
-                                                 loading="lazy">
-                                        {% else %}
-                                            <img src="{% static 'images/default_thumbnail.jpg' %}" {# Corrected static path for consistency #}
-                                                 alt="No Image"
-                                                 width="100" height="100"
-                                                 style="object-fit: cover; border-radius: 5px;"
-                                                 loading="lazy">
-                                        {% endif %}
-                                        <div class="sidebar-list-item-details">
-                                            <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
-                                            <span>{{ post.published_date }}</span>
-                                        </div>
+                        <div class="sidebar-section">
+                            <h4><i class="fas fa-clock"></i> Recent</h4>
+                            <div class="trending-buttons">
+                                <button class="btn btn-primary">All</button>
+                            </div>
+                            <div class="list-unstyled">
+                                {% for post in recent_posts %}
+                                <div class="sidebar-list-item">
+                                    {% if post.thumbnail %}
+                                    <img src="{{ post.thumbnail.url }}" alt="{{ post.title }}" width="100" height="100"
+                                        style="object-fit: cover; border-radius: 5px;" loading="lazy">
+                                    {% else %}
+                                    <img src="{% static 'images/default_thumbnail.jpg' %}" {# Corrected static path for
+                                        consistency #} alt="No Image" width="100" height="100"
+                                        style="object-fit: cover; border-radius: 5px;" loading="lazy">
+                                    {% endif %}
+                                    <div class="sidebar-list-item-details">
+                                        <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+                                        <span>{{ post.published_date }}</span>
                                     </div>
-                                    {% empty %}
-                                    <p style="color: var(--text-dim);">No recent posts available.</p>
-                                    {% endfor %}
                                 </div>
+                                {% empty %}
+                                <p style="color: var(--text-dim);">No recent posts available.</p>
+                                {% endfor %}
                             </div>
+                        </div>
 
-                            <div class="sidebar-section">
-                                <h4><i class="fas fa-search"></i> Popular</h4>
-                                <ul class="popular-search-list">
-                                    {% for tag in popular_tags %}
-                                    <li>
-                                        <a href="{% url 'tag_detail' tag.slug %}">
-                                            <i class="fas fa-hashtag"></i> {{ tag.name }}
-                                        </a>
-                                    </li>
-                                    {% empty %}
-                                    <li>No popular tags found.</li>
-                                    {% endfor %}
-                                </ul>
-                            </div>
+                        <div class="sidebar-section">
+                            <h4><i class="fas fa-search"></i> Popular</h4>
+                            <ul class="popular-search-list">
+                                {% for tag in popular_tags %}
+                                <li>
+                                    <a href="{% url 'tag_detail' tag.slug %}">
+                                        <i class="fas fa-hashtag"></i> {{ tag.name }}
+                                    </a>
+                                </li>
+                                {% empty %}
+                                <li>No popular tags found.</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
                         {% endblock %}
                     </div>
                 </div>
             </div>
-            
+
             {% include 'core/includes/footer.html' %}
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
 </body>
+
 </html>
