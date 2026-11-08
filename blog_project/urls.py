@@ -34,6 +34,10 @@ urlpatterns = [
     # This path remains for search engines to crawl individual sitemaps
     path('sitemap-<section>.xml', sitemap_view, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
     
+    # Bot protection firewall (challenge endpoint + administrator dashboard).
+    # Must stay before the catch-all page view.
+    path('botwall/', include('botwall.urls')),
+
     path('', include('core.urls')), 
     path('ads/', include('ads.urls')),
     

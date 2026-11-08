@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<title>Too many requests &middot; {{ brand }}</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(1200px 600px at 50% -10%, #1d2530 0%, #0d1116 55%, #07090c 100%);
+    color: #e9eef5; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    padding: 24px;
+  }
+  .card {
+    width: 100%; max-width: 440px; background: #111820; border: 1px solid #202b37; border-radius: 14px;
+    padding: 30px 28px 26px; box-shadow: 0 24px 60px rgba(0,0,0,.45);
+  }
+  .code { font-size: 44px; font-weight: 700; letter-spacing: .04em; color: #ffcf7a; line-height: 1; }
+  h1 { font-size: 20px; line-height: 1.3; margin: 16px 0 8px; font-weight: 650; }
+  p { color: #9daec1; font-size: 14px; line-height: 1.65; margin: 0 0 12px; }
+  .meta { border-top: 1px solid #1e2833; margin-top: 18px; padding-top: 14px; font-size: 11.5px;
+    color: #6f8092; line-height: 1.6; }
+  a { color: #7fc7ff; }
+</style>
+</head>
+<body>
+  <main class="card">
+    <div class="code">429</div>
+    <h1>Too many requests</h1>
+    <p>Your network has sent more requests than this site allows in a short period. Please wait
+       <strong>{{ retry_after }}</strong> seconds and reload the page.</p>
+    <p>If you are on a shared network, other devices may have contributed to this limit. Normal
+       browsing will work again as soon as the window resets.</p>
+    <div class="meta">
+      {% if contact %}<div>Contact: <a href="mailto:{{ contact }}">{{ contact }}</a></div>{% endif %}
+      <div>Reference: botwall</div>
+    </div>
+  </main>
+</body>
+</html>

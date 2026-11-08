@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import importlib.util
 import os
 from pathlib import Path
 from dotenv import load_dotenv # Import load_dotenv
@@ -44,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'django.contrib.sites',
     'django.contrib.sitemaps',
     'core',
@@ -51,6 +53,7 @@ INSTALLED_APPS = [
     'django_ckeditor_5',
     'django_cleanup',
     'ads',
+    'botwall',
 ]
 
 
@@ -150,6 +153,9 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     # WhiteNoise middleware serves static files in production (e.g., cPanel)
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    # Bot protection firewall: after static files, before sessions/auth so a
+    # blocked request never touches the database.
+    'botwall.middleware.BotWallMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -265,6 +271,94 @@ TELEGRAM_CHANNEL_IDS = TELEGRAM_CHANNEL_IDS = [
 # Django Sites Framework
 SITE_ID = 1
 
+# =============================================================================
+# BOT PROTECTION FIREWALL (botwall)
+# =============================================================================
+# The firewall is designed for shared cPanel hosting: Redis is optional, a file
+# cache is used as primary fallback and a database cache as the last resort.
+# Runtime thresholds live in the database (Django admin -> Bot protection), the
+# values here only configure infrastructure.
+
+BOTWALL_ENABLED = os.getenv('BOTWALL_ENABLED', 'True').lower() in ('1', 'true', 'yes', 'on')
+
+# Reverse proxy handling. NEVER trust X-Forwarded-For blindly: define the proxy
+# ranges (or the number of trusted hops) that actually front this site.
+BOTWALL_TRUSTED_PROXIES = [
+    item.strip()
+    for item in os.getenv('BOTWALL_TRUSTED_PROXIES', '').split(',')
+    if item.strip()
+]
+BOTWALL_TRUSTED_PROXY_HOPS = int(os.getenv('BOTWALL_TRUSTED_PROXY_HOPS', '0') or 0)
+BOTWALL_TRUST_CF_HEADERS = os.getenv('BOTWALL_TRUST_CF_HEADERS', 'False').lower() in (
+    '1', 'true', 'yes', 'on',
+)
+
+# Cache selection: Redis -> file cache (primary) with database cache fallback.
+REDIS_URL = os.getenv('REDIS_URL', '').strip()
+_HAS_REDIS_CLIENT = importlib.util.find_spec('redis') is not None
+BOTWALL_CACHE_ALIAS = 'botwall'
+BOTWALL_FALLBACK_CACHE_ALIAS = 'botwall_fallback'
+BOTWALL_CACHE_FAILURE_COOLDOWN = int(os.getenv('BOTWALL_CACHE_FAILURE_COOLDOWN', '30') or 30)
+BOTWALL_CONFIG_CACHE_SECONDS = int(os.getenv('BOTWALL_CONFIG_CACHE_SECONDS', '20') or 20)
+BOTWALL_RULES_REFRESH_SECONDS = int(os.getenv('BOTWALL_RULES_REFRESH_SECONDS', '30') or 30)
+
+_BOTWALL_CACHE_DIR = os.getenv(
+    'BOTWALL_FILE_CACHE_DIR', str(BASE_DIR / 'tmp' / 'botwall_cache')
+)
+_BOTWALL_FILE_CACHE = {
+    'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+    'LOCATION': _BOTWALL_CACHE_DIR,
+    'TIMEOUT': 300,
+    'OPTIONS': {'MAX_ENTRIES': 20000, 'CULL_FREQUENCY': 3},
+}
+
+if _HAS_REDIS_CLIENT and REDIS_URL:
+    _BOTWALL_PRIMARY_CACHE = {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': REDIS_URL,
+        'TIMEOUT': 300,
+        'OPTIONS': {
+            'socket_timeout': 2,
+            'socket_connect_timeout': 1,
+            'retry_on_timeout': False,
+        },
+    }
+    _BOTWALL_FALLBACK_CACHE = _BOTWALL_FILE_CACHE
+    BOTWALL_CACHE_BACKEND = 'redis'
+else:
+    _BOTWALL_PRIMARY_CACHE = _BOTWALL_FILE_CACHE
+    if os.getenv('BOTWALL_FALLBACK_CACHE', 'database').lower() == 'file':
+        _BOTWALL_FALLBACK_CACHE = {
+            **_BOTWALL_FILE_CACHE,
+            'LOCATION': f'{_BOTWALL_CACHE_DIR}_fallback',
+        }
+    else:
+        _BOTWALL_FALLBACK_CACHE = {
+            'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+            'LOCATION': 'botwall_cache',
+            'TIMEOUT': 300,
+            'OPTIONS': {'MAX_ENTRIES': 2000, 'CULL_FREQUENCY': 4},
+        }
+    BOTWALL_CACHE_BACKEND = 'file'
+
+CACHES = {
+    # Kept for Django internals; the firewall uses its own aliases.
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'botwall-default',
+    },
+    'botwall': _BOTWALL_PRIMARY_CACHE,
+    'botwall_fallback': _BOTWALL_FALLBACK_CACHE,
+}
+
+# Optional integrations (no hard dependencies).
+BOTWALL_GEOIP2_DB = os.getenv('BOTWALL_GEOIP2_DB', '')
+BOTWALL_CHALLENGE_BRAND = os.getenv('BOTWALL_CHALLENGE_BRAND', '')
+BOTWALL_CONTACT_EMAIL = os.getenv('BOTWALL_CONTACT_EMAIL', '')
+
+# Advanced: override individual detection weights (ints) without touching code.
+BOTWALL_WEIGHTS = {}
+
 # LOGGING configuration
 LOGGING = {
     'version': 1,
@@ -303,6 +397,11 @@ LOGGING = {
             'handlers': ['console'],
             'level': 'INFO', # Set to INFO or DEBUG to see your signal prints/logs
             'propagate': False, # Don't pass up to Django's root logger
+        },
+        'botwall': { # Bot protection firewall
+            'handlers': ['console'],
+            'level': os.getenv('BOTWALL_LOG_LEVEL', 'INFO'),
+            'propagate': False,
         },
         # Add other app loggers if needed
         # 'ads': {

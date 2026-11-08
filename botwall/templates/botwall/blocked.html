@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<title>Access temporarily restricted &middot; {{ brand }}</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(1200px 600px at 50% -10%, #2a1d1d 0%, #120b0b 55%, #080606 100%);
+    color: #f1e9e9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    padding: 24px;
+  }
+  .card {
+    width: 100%; max-width: 460px; background: #191112; border: 1px solid #332023; border-radius: 14px;
+    padding: 30px 28px 26px; box-shadow: 0 24px 60px rgba(0,0,0,.45);
+  }
+  .badge { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; letter-spacing: .08em;
+    text-transform: uppercase; color: #ffb4a8; background: rgba(255, 120, 100, .09);
+    border: 1px solid rgba(255,120,100,.28); padding: 5px 10px; border-radius: 999px; }
+  h1 { font-size: 21px; line-height: 1.3; margin: 18px 0 8px; font-weight: 650; }
+  p { color: #d3bfc0; font-size: 14px; line-height: 1.65; margin: 0 0 14px; }
+  ul { color: #c9b6b8; font-size: 13.5px; line-height: 1.7; padding-left: 20px; margin: 0 0 14px; }
+  .meta { border-top: 1px solid #2c1e20; margin-top: 18px; padding-top: 14px; font-size: 11.5px;
+    color: #8d7a7c; line-height: 1.6; }
+  a { color: #ffb4a8; }
+  code { background: #241618; padding: 2px 5px; border-radius: 4px; font-size: 12px; }
+</style>
+</head>
+<body>
+  <main class="card">
+    <div class="badge">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="11" width="18" height="11" rx="2"></rect>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+      </svg>
+      Access restricted
+    </div>
+    <h1>Automated traffic protection</h1>
+    {% if blocked_until %}
+      <p>This network address has been temporarily restricted because the requests coming from it
+         matched automated-abuse patterns (excessive request rate, URL scanning or spoofed crawler
+         identity).</p>
+      <p>Access is restored automatically at <strong>{{ blocked_until|date:"Y-m-d H:i:s T" }}</strong>
+         (in about {{ retry_after }} seconds).</p>
+    {% else %}
+      <p>This network address is blocked because the requests coming from it matched automated-abuse
+         patterns.</p>
+    {% endif %}
+    <ul>
+      <li>Keep this page closed; retrying rapidly extends the restriction.</li>
+      <li>If you share this network (office, school, mobile carrier) other users may be affected.</li>
+      <li>Search engine crawlers are verified separately and are not blocked by this check.</li>
+    </ul>
+    <div class="meta">
+      {% if ip %}<div>Address: <code>{{ ip }}</code></div>{% endif %}
+      {% if contact %}<div>Contact: <a href="mailto:{{ contact }}">{{ contact }}</a></div>{% endif %}
+      <div>Reference: botwall</div>
+    </div>
+  </main>
+</body>
+</html>

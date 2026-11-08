@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<title>Security check &middot; {{ brand }}</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(1200px 600px at 50% -10%, #1d2a3a 0%, #0b1118 55%, #070a0e 100%);
+    color: #e8eef6; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    padding: 24px;
+  }
+  .card {
+    width: 100%; max-width: 440px; background: #101823; border: 1px solid #1e2b3b; border-radius: 14px;
+    padding: 30px 28px 26px; box-shadow: 0 24px 60px rgba(0,0,0,.45);
+  }
+  .badge { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; letter-spacing: .08em;
+    text-transform: uppercase; color: #7fd4a8; background: rgba(60, 200, 130, .09); border: 1px solid rgba(60,200,130,.25);
+    padding: 5px 10px; border-radius: 999px; }
+  h1 { font-size: 21px; line-height: 1.3; margin: 18px 0 8px; font-weight: 650; }
+  p { color: #9fb0c3; font-size: 14px; line-height: 1.6; margin: 0 0 16px; }
+  .progress { height: 6px; border-radius: 999px; background: #1b2736; overflow: hidden; margin: 18px 0 12px; }
+  .progress span { display: block; height: 100%; width: 12%; border-radius: 999px;
+    background: linear-gradient(90deg, #3cc882, #35a7ff); transition: width .35s ease; }
+  .status { font-size: 13px; color: #8ea0b4; min-height: 20px; }
+  .error { color: #ff9b9b; }
+  button {
+    margin-top: 18px; width: 100%; padding: 11px 16px; border-radius: 9px; border: 1px solid #2b6c4f;
+    background: #17402f; color: #c9f6dd; font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  button:hover { background: #1c4f3a; }
+  .meta { margin-top: 18px; font-size: 11px; color: #5e7185; line-height: 1.5; }
+  .hidden { display: none !important; }
+  code { background: #172231; padding: 2px 5px; border-radius: 4px; font-size: 12px; }
+</style>
+</head>
+<body>
+  <main class="card" id="bw-root"
+        data-token="{{ token }}"
+        data-nonce="{{ nonce }}"
+        data-difficulty="{{ difficulty }}"
+        data-verify-url="{{ verify_url }}"
+        data-next-url="{{ next_url }}">
+    <div class="badge">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+      </svg>
+      Security check
+    </div>
+    <h1>Confirming your browser</h1>
+    <p>Before continuing to <strong>{{ brand }}</strong>, your browser needs to complete a quick,
+       automatic check. This usually takes less than a second and only happens when traffic
+       looks unusual.</p>
+    <div class="progress" aria-hidden="true"><span id="bw-progress"></span></div>
+    <div class="status" id="bw-status" role="status" aria-live="polite">Starting the check&hellip;</div>
+    <button class="hidden" id="bw-retry" type="button">Try again</button>
+    <p class="meta" id="bw-meta">
+      Reference: <code>{{ reason_code }}</code><br>
+      Your browser must allow JavaScript for this one-time check.
+      No advertising or analytics code runs on this page.
+    </p>
+    <noscript>
+      <p class="error">
+        JavaScript is disabled in your browser. This verification step requires JavaScript.
+        Please enable it (or use a different browser) and reload the page. If you are a regular
+        visitor and keep seeing this screen, contact the site administrator.
+      </p>
+    </noscript>
+  </main>
+
+<script>
+(function () {
+  "use strict";
+  var root = document.getElementById("bw-root");
+  var statusEl = document.getElementById("bw-status");
+  var progress = document.getElementById("bw-progress");
+  var retryBtn = document.getElementById("bw-retry");
+  var meta = document.getElementById("bw-meta");
+
+  var token = root.getAttribute("data-token") || "";
+  var nonce = root.getAttribute("data-nonce") || "";
+  var bits = parseInt(root.getAttribute("data-difficulty") || "16", 10) || 16;
+  var verifyUrl = root.getAttribute("data-verify-url") || "/botwall/challenge/verify/";
+  var nextUrl = root.getAttribute("data-next-url") || "/";
+
+  function fail(message) {
+    statusEl.className = "status error";
+    statusEl.textContent = message;
+    progress.style.width = "100%";
+    progress.style.opacity = "0.35";
+    retryBtn.classList.remove("hidden");
+  }
+
+  if (!token || !nonce) {
+    fail("This security check expired. Please reload the page.");
+    return;
+  }
+
+  var imul = Math.imul;
+  if (typeof imul !== "function") {
+    fail("Your browser is too old to complete the security check. Please update it.");
+    return;
+  }
+
+  // Must stay byte-identical with botwall.challenge.pow_hash (32-bit FNV-1a
+  // plus the murmur3 finaliser). Input is ASCII only.
+  function hash(nonceValue, proof) {
+    var text = nonceValue + ":" + proof;
+    var h = 0x811c9dc5;
+    for (var i = 0; i < text.length; i++) {
+      h ^= text.charCodeAt(i);
+      h = imul(h, 0x01000193);
+    }
+    h ^= h >>> 16;
+    h = imul(h, 0x85ebca6b);
+    h ^= h >>> 13;
+    h = imul(h, 0xc2b2ae35);
+    h ^= h >>> 16;
+    return h >>> 0;
+  }
+
+  function leadingZeroBits(value) {
+    var count = 0;
+    for (var bit = 31; bit >= 0; bit--) {
+      if (value & (1 << bit)) { break; }
+      count++;
+    }
+    return count;
+  }
+
+  var proof = 0;
+  var verified = false;
+  var started = Date.now();
+  var MAX_PROOF = 100000000;
+
+  function submit(value) {
+    statusEl.textContent = "Verifying\u2026";
+    progress.style.width = "92%";
+    var request = new XMLHttpRequest();
+    request.open("POST", verifyUrl, true);
+    request.setRequestHeader("Content-Type", "application/json");
+    request.setRequestHeader("X-Requested-With", "botwall");
+    request.timeout = 15000;
+    request.onload = function () {
+      var data = null;
+      try { data = JSON.parse(request.responseText); } catch (e) { data = null; }
+      if (request.status >= 200 && request.status < 300 && data && data.ok) {
+        verified = true;
+        progress.style.width = "100%";
+        statusEl.textContent = "Verified. Loading the page\u2026";
+        window.location.replace(data.next || nextUrl);
+        return;
+      }
+      var reason = (data && data.reason) || ("HTTP " + request.status);
+      if (reason === "rate_limited") {
+        fail("Too many verification attempts. Please wait a minute and try again.");
+      } else if (reason === "expired" || reason === "expired_or_used") {
+        fail("This security check expired. Please reload the page.");
+      } else {
+        fail("The check could not be completed (" + reason + "). Please try again.");
+      }
+    };
+    request.onerror = function () { fail("Network error during verification. Please try again."); };
+    request.ontimeout = function () { fail("The verification timed out. Please try again."); };
+    request.send(JSON.stringify({ token: token, proof: value, next: nextUrl, nonce: nonce }));
+  }
+
+  function work() {
+    var sliceStart = Date.now();
+    for (;;) {
+      if (leadingZeroBits(hash(nonce, proof)) >= bits) {
+        submit(proof);
+        return;
+      }
+      proof++;
+      if (proof > MAX_PROOF) {
+        fail("The check took too long. Please reload the page.");
+        return;
+      }
+      if (proof % 2048 === 0) {
+        var elapsed = Date.now() - started;
+        var ratio = Math.min(88, Math.max(12, Math.round((1 - Math.exp(-elapsed / 900)) * 88)));
+        progress.style.width = ratio + "%";
+        statusEl.textContent = "Working\u2026 " + Math.round(proof / 1000) + "k combinations tested";
+        if (Date.now() - sliceStart > 60) {
+          window.setTimeout(work, 0);
+          return;
+        }
+      }
+    }
+  }
+
+  retryBtn.addEventListener("click", function () {
+    window.location.reload();
+  });
+
+  window.setTimeout(function () {
+    if (!verified && proof === 0) {
+      fail("The security check could not start. Please reload the page.");
+    }
+  }, 20000);
+
+  statusEl.textContent = "Working\u2026";
+  window.setTimeout(work, 40);
+}());
+</script>
+</body>
+</html>
